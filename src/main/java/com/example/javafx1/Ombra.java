@@ -1,4 +1,4 @@
 package com.example.javafx1;
 
-public class Ombra {
+public class Ombra extends Nemico{
 }
