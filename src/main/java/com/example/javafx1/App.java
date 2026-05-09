@@ -35,7 +35,7 @@ public class App extends Application {
         // 1. Caricamento Background
         // Assicurati che il file sia in src/main/resources/immagini/background.png
         try {
-            background = new Image(getClass().getResourceAsStream("/immagini/background.png"));
+            background = new Image(getClass().getResourceAsStream("/img/bg.png"));
         } catch (Exception e) {
             System.out.println("Background non trovato, uso un colore solido.");
         }
