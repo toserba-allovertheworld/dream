@@ -18,10 +18,6 @@ public abstract class Nemico extends Sprite {
         this.velocityY = 0;
     }
 
-    public Nemico(double x, double y, double dimensionX, double dimensionY) {
-        super();
-    }
-
     public void move() {
     }
 
