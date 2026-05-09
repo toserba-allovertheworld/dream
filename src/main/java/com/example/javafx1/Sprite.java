@@ -31,6 +31,10 @@ public abstract class Sprite {
         this.dimensionY = dimensionY;
     }
 
+    public Sprite() {
+
+    }
+
     // Disegna lo spiret
     public abstract void draw(GraphicsContext gc);
 
