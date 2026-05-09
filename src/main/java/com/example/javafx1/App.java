@@ -16,142 +16,109 @@ import java.util.List;
 
 public class App extends Application {
 
-    // Risorse Grafiche
-    private Image background;
-
-    // Entità di gioco
+    private Image immagineSfondo;
+    private Image spriteSheetBambino;
+    private Sprite bambino;
     private List<Nemico> nemici = new ArrayList<>();
-    private Sprite bambino; // Supponiamo tu abbia una classe per il bambino o usa Sprite
 
-    // Dimensioni finestra
-    private final int WIDTH = 1920;
-    private final int HEIGHT = 1080;
+    private final double WIDTH = 800;
+    private final double HEIGHT = 800;
 
     @Override
     public void start(Stage stage) {
         Canvas canvas = new Canvas(WIDTH, HEIGHT);
         GraphicsContext gc = canvas.getGraphicsContext2D();
 
-        // 1. Caricamento Background
-        // Assicurati che il file sia in src/main/resources/immagini/background.png
+        // Caricamento Immagini
         try {
-            background = new Image(getClass().getResourceAsStream("/img/bg.png"));
+            immagineSfondo = new Image(getClass().getResourceAsStream("/img/bg.png"));
+            spriteSheetBambino = new Image(getClass().getResourceAsStream("/img/Leo.png"));
         } catch (Exception e) {
-            System.out.println("Background non trovato, uso un colore solido.");
+            System.out.println("Errore caricamento risorse: " + e.getMessage());
         }
 
-        // 2. Inizializzazione Gioco
-        inizializzaPartita();
+        // Inizializzazione Bambino (usiamo la classe anonima per il disegno specifico)
+        bambino = new Sprite(50, HEIGHT / 2 - 45, 60, 90) {
+            @Override
+            public void draw(GraphicsContext gc) {
+                if (spriteSheetBambino != null) {
+                    double fw = spriteSheetBambino.getWidth() / 3;
+                    double fh = spriteSheetBambino.getHeight() / 4;
+                    gc.drawImage(spriteSheetBambino, 0, 0, fw, fh, x, y, dimensionX, dimensionY);
+                }
+            }
+            @Override
+            public void update(double dt) {} // Sta fermo
+        };
+        bambino.health = 1000; // Vita alta per il protagonista
+        bambino.maxHealth = 1000;
 
-        // 3. Game Loop
         AnimationTimer timer = new AnimationTimer() {
             @Override
-            public void handle(long nowNano) {
-                long nowMilli = System.currentTimeMillis();
-                double deltaTime = 1.0; // In un gioco reale calcoleresti il tempo passato
-
-                update(deltaTime, nowMilli);
+            public void handle(long now) {
+                update(System.currentTimeMillis());
                 draw(gc);
             }
         };
         timer.start();
 
-        StackPane root = new StackPane(canvas);
-        stage.setScene(new Scene(root, WIDTH, HEIGHT));
-        stage.setTitle("Proteggi il Bambino - Difesa dall'Occhio");
+        stage.setScene(new Scene(new StackPane(canvas), WIDTH, HEIGHT));
+        stage.setTitle("Il Gioco dei Sogni - Proteggi il Bambino");
         stage.show();
     }
 
-    private void inizializzaPartita() {
-        // Creiamo il bambino (posizione centrale a sinistra)
-        // Usiamo i parametri di Sprite: x, y, dimX, dimY
-        bambino = new Sprite(50, HEIGHT / 2.0 - 25, 50, 50) {
-            @Override public void draw(GraphicsContext gc) { gc.setFill(Color.YELLOW); gc.fillRect(x, y, dimensionX, dimensionY); }
-            @Override public void update(double dt) {}
-        };
-        bambino.setAlive(true);
-        // Impostiamo vita iniziale dal file Sprite
-        // (Nota: dovresti aggiungere dei setter o gestire i campi protected)
-    }
-
-    private void update(double deltaTime, long nowMilli) {
-        // Generazione nemici casuali (esempio)
-        if (Math.random() < 0.01) {
-            nemici.add(new Occhio(WIDTH, Math.random() * (HEIGHT - 50), 60, 60));
+    private void update(long currentTime) {
+        // Spawn casuale di nemici (es. un Occhio ogni tanto)
+        if (Math.random() < 0.005) {
+            nemici.add(new Occhio(WIDTH, Math.random() * (HEIGHT - 100), 70, 70));
         }
-
-        // Lista di bersagli per l'attacco ad area dell'Occhio
-        List<Sprite> bersagli = new ArrayList<>();
-        bersagli.add(bambino);
 
         Iterator<Nemico> iter = nemici.iterator();
         while (iter.hasNext()) {
             Nemico n = iter.next();
-            n.update(deltaTime); // Muove il nemico
+            n.update(1.0); // Movimento
 
-            // Logica specifica per l'Occhio (Danno ad Area)
+            // Se è un Occhio, esegue l'attacco ad area contro il bambino
             if (n instanceof Occhio) {
-                ((Occhio) n).attackArea(bersagli, nowMilli);
+                List<Sprite> bersagli = new ArrayList<>();
+                bersagli.add(bambino);
+                ((Occhio) n).attackArea(bersagli, currentTime);
             }
 
-            // Rimuovi se morto o fuori schermo
-            if (!n.isAlive() || n.getX() < -100) {
-                iter.hasNext();
+            if (!n.isAlive() || n.getX() < 0) {
                 iter.remove();
             }
         }
     }
 
     private void draw(GraphicsContext gc) {
-        // A. Disegna Background
-        if (background != null) {
-            gc.drawImage(background, 0, 0, WIDTH, HEIGHT);
+        // 1. Sfondo
+        if (immagineSfondo != null) {
+            gc.drawImage(immagineSfondo, 0, 0, WIDTH, HEIGHT);
         } else {
             gc.setFill(Color.DARKSLATEGRAY);
             gc.fillRect(0, 0, WIDTH, HEIGHT);
         }
 
-        // B. Disegna Entità
+        // 2. Bambino
         bambino.draw(gc);
+        drawHealthBar(gc, bambino, Color.LIME);
+
+        // 3. Nemici
         for (Nemico n : nemici) {
             n.draw(gc);
-            drawHealthBar(gc, n); // Barra vita per ogni nemico
+            drawHealthBar(gc, n, Color.RED);
         }
-
-        // C. Disegna UI (Barra vita del bambino)
-        drawHealthBarBambino(gc);
     }
 
-    // Metodo generico per disegnare le barre della vita sopra gli sprite
-    private void drawHealthBar(GraphicsContext gc, Sprite s) {
-        double barWidth = s.getDimensionX();
-        double barHeight = 5;
-        double x = s.getX();
-        double y = s.getY() - 10; // Posizionata sopra lo sprite
-
-        // Sfondo barra (rosso)
-        gc.setFill(Color.RED);
-        gc.fillRect(x, y, barWidth, barHeight);
-
-        // Vita attuale (verde)
-        // Calcolo basato su health e maxHealth definiti in Sprite
-        // Esempio ipotizzando valori di default
-        double lifePercent = 1.0; // Sostituisci con s.health / s.maxHealth
-        gc.setFill(Color.LIME);
-        gc.fillRect(x, y, barWidth * lifePercent, barHeight);
-    }
-
-    private void drawHealthBarBambino(GraphicsContext gc) {
-        // Una barra più grande in alto per il protagonista
+    private void drawHealthBar(GraphicsContext gc, Sprite s, Color color) {
+        double barW = s.getDimensionX();
+        double currentW = (s.health / s.maxHealth) * barW;
         gc.setFill(Color.BLACK);
-        gc.fillRect(20, 20, 200, 20);
-        gc.setFill(Color.LIME);
-        gc.fillRect(22, 22, 196, 16); // Qui userai la vita reale del bambino
-        gc.setStroke(Color.WHITE);
-        gc.strokeRect(20, 20, 200, 20);
+        gc.fillRect(s.getX(), s.getY() - 15, barW, 8);
+        gc.setFill(color);
+        gc.fillRect(s.getX(), s.getY() - 15, currentW, 8);
     }
 
-    public static void main(String[] args) {
-        launch(args);
-    }
+    public static void main(String[] args) { launch(args); }
 }
