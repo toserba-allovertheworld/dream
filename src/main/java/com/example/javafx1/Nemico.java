@@ -18,7 +18,9 @@ public abstract class Nemico extends Sprite {
         this.velocityY = 0;
     }
 
-    public void move() {
+    protected void move(double deltaTime) {
+        x += velocityX * deltaTime;
+        y += velocityY * deltaTime;
     }
 
     @Override
