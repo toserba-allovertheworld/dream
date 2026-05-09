@@ -24,8 +24,8 @@ public class App extends Application {
     private Sprite bambino; // Supponiamo tu abbia una classe per il bambino o usa Sprite
 
     // Dimensioni finestra
-    private final int WIDTH = 800;
-    private final int HEIGHT = 800;
+    private final int WIDTH = 1920;
+    private final int HEIGHT = 1080;
 
     @Override
     public void start(Stage stage) {
