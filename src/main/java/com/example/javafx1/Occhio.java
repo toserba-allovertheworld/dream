@@ -2,52 +2,151 @@ package com.example.javafx1;
 
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
+
+import java.io.InputStream;
 import java.util.List;
 
 public class Occhio extends Nemico {
 
-    private static final Image SPRITE_SHEET = new Image(Occhio.class.getResourceAsStream("/immagini/image_9291ff.jpg"));
-    private double aoeRadius = 150.0; // Raggio d'azione dell'attacco
+    private static Image SPRITE_SHEET;
 
-    public Occhio(double x, double y, double dimensionX, double dimensionY) {
-        // Parametri: x, y, dimX, dimY, vita, danno, velocità
-        super(x, y, dimensionX, dimensionY, 80.0, 10.0, 1.5);
-        this.attackSpeed = 2000; // Può attaccare ogni 2 secondi
+    static {
+
+        try {
+
+            InputStream stream =
+                    Occhio.class.getResourceAsStream(
+                            "/img/occhio.png"
+                    );
+
+            if (stream != null) {
+
+                SPRITE_SHEET = new Image(stream);
+
+                System.out.println(
+                        "Immagine occhio caricata!"
+                );
+
+            } else {
+
+                System.out.println(
+                        "Immagine NON trovata!"
+                );
+            }
+
+        } catch (Exception e) {
+
+            System.out.println(
+                    "Errore caricamento occhio: "
+                            + e.getMessage()
+            );
+        }
+    }
+
+    private double aoeRadius = 150.0;
+
+    public Occhio(
+            double x,
+            double y,
+            double dimensionX,
+            double dimensionY
+    ) {
+
+        super(
+                x,
+                y,
+                dimensionX,
+                dimensionY,
+                80.0,
+                10.0,
+                1.5
+        );
+
+        this.attackSpeed = 2000;
     }
 
     @Override
     public void draw(GraphicsContext gc) {
-        if (SPRITE_SHEET != null && !SPRITE_SHEET.isError()) {
-            double frameWidth = SPRITE_SHEET.getWidth() / 3;
-            double frameHeight = SPRITE_SHEET.getHeight();
-            // Disegna solo la prima posa (Frame 1)
-            gc.drawImage(SPRITE_SHEET, 0, 0, frameWidth, frameHeight, x, y, dimensionX, dimensionY);
+
+        if (SPRITE_SHEET != null) {
+
+            // L'immagine contiene 3 occhi affiancati
+            double frameWidth =
+                    SPRITE_SHEET.getWidth() / 3.0;
+
+            double frameHeight =
+                    SPRITE_SHEET.getHeight();
+
+            // Disegna SOLO il frame di sinistra
+            gc.drawImage(
+                    SPRITE_SHEET,
+
+                    // sorgente
+                    0,
+                    0,
+                    frameWidth,
+                    frameHeight,
+
+                    // destinazione
+                    x,
+                    y,
+                    dimensionX,
+                    dimensionY
+            );
         }
     }
 
     @Override
     public void update(double deltaTime) {
-        this.x += velocityX; // Si muove verso sinistra
-        this.y += Math.sin(System.currentTimeMillis() * 0.005) * 0.8; // Oscillazione
+
+        // Movimento verso sinistra
+        this.x -= 2;
+
+        // Oscillazione verticale
+        this.y += Math.sin(
+                System.currentTimeMillis() * 0.005
+        ) * 0.8;
     }
 
-    // Metodo per gestire l'attacco ad area
-    public void attackArea(List<Sprite> bersagli, long currentTime) {
-        if (canAttack(currentTime)) { // Verifica il cooldown dell'attacco
+    public void attackArea(
+            List<Sprite> bersagli,
+            long currentTime
+    ) {
+
+        if (canAttack(currentTime)) {
+
             boolean haColpito = false;
+
             for (Sprite s : bersagli) {
+
                 if (s.isAlive()) {
-                    // Calcolo distanza tra l'occhio e il bersaglio
-                    double dist = Math.sqrt(Math.pow(getCenterX() - s.getCenterX(), 2) +
-                            Math.pow(getCenterY() - s.getCenterY(), 2));
+
+                    double dist = Math.sqrt(
+                            Math.pow(
+                                    getCenterX()
+                                            - s.getCenterX(),
+                                    2
+                            )
+                                    +
+                                    Math.pow(
+                                            getCenterY()
+                                                    - s.getCenterY(),
+                                            2
+                                    )
+                    );
+
                     if (dist <= aoeRadius) {
-                        s.takeDamage(this.damage); // Infligge danno
+
+                        s.takeDamage(this.damage);
+
                         haColpito = true;
                     }
                 }
             }
+
             if (haColpito) {
-                attackPerformed(currentTime); // Reset del timer di attacco
+
+                attackPerformed(currentTime);
             }
         }
     }
