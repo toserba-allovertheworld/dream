@@ -23,8 +23,8 @@ public class App extends Application {
 
     private List<Nemico> nemici = new ArrayList<>();
 
-    private final double WIDTH = 800;
-    private final double HEIGHT = 800;
+    private final double WIDTH = 1920;
+    private final double HEIGHT = 1080;
 
     @Override
     public void start(Stage stage) {
