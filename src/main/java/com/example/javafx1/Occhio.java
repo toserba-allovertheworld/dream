@@ -11,35 +11,16 @@ public class Occhio extends Nemico {
     private static Image SPRITE_SHEET;
 
     static {
-
         try {
-
-            InputStream stream =
-                    Occhio.class.getResourceAsStream(
-                            "/img/occhio.png"
-                    );
-
+            InputStream stream = Occhio.class.getResourceAsStream("/img/occhio.png");
             if (stream != null) {
-
                 SPRITE_SHEET = new Image(stream);
+                System.out.println("Immagine occhio caricata!");
 
-                System.out.println(
-                        "Immagine occhio caricata!"
-                );
-
-            } else {
-
-                System.out.println(
-                        "Immagine NON trovata!"
-                );
-            }
+            } else System.out.println("Immagine NON trovata!");
 
         } catch (Exception e) {
-
-            System.out.println(
-                    "Errore caricamento occhio: "
-                            + e.getMessage()
-            );
+            System.out.println("Errore caricamento occhio: " + e.getMessage());
         }
     }
 
@@ -70,6 +51,7 @@ public class Occhio extends Nemico {
 
         if (SPRITE_SHEET != null) {
 
+            // Calcola le dimensioni mantenendo l'aspect ratio
             // L'immagine contiene 3 occhi affiancati
             double frameWidth =
                     SPRITE_SHEET.getWidth() / 3.0;
@@ -77,75 +59,36 @@ public class Occhio extends Nemico {
             double frameHeight =
                     SPRITE_SHEET.getHeight();
 
-            // Disegna SOLO il frame di sinistra
-            gc.drawImage(
-                    SPRITE_SHEET,
-
-                    // sorgente
-                    0,
-                    0,
-                    frameWidth,
-                    frameHeight,
-
-                    // destinazione
-                    x,
-                    y,
-                    dimensionX,
-                    dimensionY
-            );
+            double aspectRatio = frameWidth / frameHeight;
+            double drawWidth = dimensionX;
+            double drawHeight = dimensionX / aspectRatio;  // Mantiene le proporzioni
+            gc.drawImage(SPRITE_SHEET, 0, 0, frameWidth, frameHeight, x, y, drawWidth, drawHeight);
         }
     }
 
     @Override
     public void update(double deltaTime) {
 
-        // Movimento verso sinistra
-        this.x -= 2;
-
-        // Oscillazione verticale
-        this.y += Math.sin(
-                System.currentTimeMillis() * 0.005
-        ) * 0.8;
+        this.x -= 0.3;
+        this.y += Math.sin(System.currentTimeMillis() * 0.005) * 0.3;
     }
 
     public void attackArea(
             List<Sprite> bersagli,
             long currentTime
     ) {
-
         if (canAttack(currentTime)) {
-
             boolean haColpito = false;
-
             for (Sprite s : bersagli) {
-
                 if (s.isAlive()) {
-
-                    double dist = Math.sqrt(
-                            Math.pow(
-                                    getCenterX()
-                                            - s.getCenterX(),
-                                    2
-                            )
-                                    +
-                                    Math.pow(
-                                            getCenterY()
-                                                    - s.getCenterY(),
-                                            2
-                                    )
-                    );
-
+                    double dist = Math.sqrt(Math.pow(getCenterX() - s.getCenterX(), 2) + Math.pow(getCenterY() - s.getCenterY(), 2));
                     if (dist <= aoeRadius) {
-
                         s.takeDamage(this.damage);
-
                         haColpito = true;
                     }
                 }
             }
-
             if (haColpito) {
-
                 attackPerformed(currentTime);
             }
         }

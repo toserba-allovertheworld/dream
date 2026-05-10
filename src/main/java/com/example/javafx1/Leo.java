@@ -12,6 +12,9 @@ public class Leo {
     private double x;
     private double y;
 
+    // *** AGGIUNTO *** Scala di Leo (2.0 = doppia dimensione, 0.5 = metà)
+    private double scala = 3.0;
+
     // Animazione
     private int posaAttuale = 0;        // 0-11 (12 pose totali)
     private double tempoAccumulato = 0;
@@ -37,6 +40,12 @@ public class Leo {
         } catch (Exception e) {
             System.err.println("Errore caricamento Leo: " + e.getMessage());
         }
+    }
+
+    // *** AGGIUNTO *** Costruttore con scala personalizzata
+    public Leo(String pathSpritesheet, double x, double y, double scala) {
+        this(pathSpritesheet, x, y);
+        this.scala = scala;
     }
 
     /**
@@ -68,8 +77,10 @@ public class Leo {
         // Estrai il frame
         WritableImage frame = estraiFrame(spriteX, spriteY);
 
-        // Disegna
-        gc.drawImage(frame, x, y);
+        // *** MODIFICATO *** Disegna con scala (dimensioni originali * scala)
+        double drawWidth = FRAME_WIDTH * scala;
+        double drawHeight = FRAME_HEIGHT * scala;
+        gc.drawImage(frame, x, y, drawWidth, drawHeight);
     }
 
     /**
@@ -87,5 +98,13 @@ public class Leo {
         }
 
         return frame;
+    }
+
+    public void setScala(double scala) {
+        this.scala = scala;
+    }
+
+    public double getScala() {
+        return scala;
     }
 }
