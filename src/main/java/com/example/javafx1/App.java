@@ -19,6 +19,12 @@ public class App extends Application {
     private Image immagineSfondo;
     private Image spriteSheetBambino;
 
+    private int occhi = 10;
+    private int occhiGeneratiFinora = 0;
+    private final double[][] spawnPoints = {{1920, 115}, {1920, 280}, {1920, 445}, {1920, 610}, {1920, 775}};
+    private long lastSpawnTime = 0;
+    private long spawnDelay = 7500;
+
     private Sprite bambino;
 
     private List<Nemico> nemici = new ArrayList<>();
@@ -35,33 +41,19 @@ public class App extends Application {
         // CARICAMENTO IMMAGINI
         try {
 
-            immagineSfondo =
-                    new Image(
-                            getClass().getResourceAsStream("/img/bg.png")
-                    );
+            immagineSfondo = new Image(getClass().getResourceAsStream("/img/bg.png"));
 
-            spriteSheetBambino =
-                    new Image(
-                            getClass().getResourceAsStream("/img/Leo.png")
-                    );
+            spriteSheetBambino = new Image(getClass().getResourceAsStream("/img/Leo.png"));
 
             System.out.println("Immagini caricate!");
 
         } catch (Exception e) {
 
-            System.out.println(
-                    "Errore caricamento immagini: "
-                            + e.getMessage()
-            );
+            System.out.println("Errore caricamento immagini: " + e.getMessage());
         }
 
         // BAMBINO
-        bambino = new Sprite(
-                40,
-                HEIGHT / 2 - 80,
-                120,
-                160
-        ) {
+        bambino = new Sprite(40, HEIGHT / 2 - 80, 120, 160) {
 
             @Override
             public void draw(GraphicsContext gc) {
@@ -69,28 +61,12 @@ public class App extends Application {
                 if (spriteSheetBambino != null) {
 
                     // FRAME SINGOLO
-                    double frameWidth =
-                            spriteSheetBambino.getWidth() / 3;
+                    double frameWidth = spriteSheetBambino.getWidth() / 3;
 
-                    double frameHeight =
-                            spriteSheetBambino.getHeight() / 4;
+                    double frameHeight = spriteSheetBambino.getHeight() / 4;
 
                     // SOLO FRAME ALTO SINISTRA
-                    gc.drawImage(
-                            spriteSheetBambino,
-
-                            // sorgente
-                            0,
-                            0,
-                            frameWidth,
-                            frameHeight,
-
-                            // destinazione
-                            x,
-                            y,
-                            120,
-                            160
-                    );
+                    gc.drawImage(spriteSheetBambino, 0, 0, frameWidth, frameHeight, x, y, 120, 160);
                 }
             }
 
@@ -106,54 +82,37 @@ public class App extends Application {
 
             @Override
             public void handle(long now) {
-
                 update();
                 draw(gc);
             }
         };
-
         timer.start();
-
-        stage.setScene(
-                new Scene(
-                        new StackPane(canvas),
-                        WIDTH,
-                        HEIGHT
-                )
-        );
-
-        stage.setTitle(
-                "Il Gioco dei Sogni - Proteggi il Bambino"
-        );
-
+        stage.setScene(new Scene(new StackPane(canvas), WIDTH, HEIGHT));
+        stage.setTitle("Il Gioco dei Sogni - Proteggi il Bambino");
         stage.show();
     }
 
     private void update() {
+        long currentTime = System.currentTimeMillis();
+        if (occhiGeneratiFinora < occhi) {
+            if (currentTime - lastSpawnTime >= spawnDelay) {
+                int indicePunto = (int) (Math.random() * spawnPoints.length);
+                double spawnX = spawnPoints[indicePunto][0];
+                double spawnY = spawnPoints[indicePunto][1];
+                nemici.add(new Occhio(spawnX, spawnY, 120, 120));
 
-        // SPAWN CASUALE
-        if (Math.random() < 0.005) {
+                lastSpawnTime = currentTime; // Reset del timer per il prossimo spawn
+                occhiGeneratiFinora++;
 
-            nemici.add(
-                    new Occhio(
-                            WIDTH + 50,
-                            Math.random() * (HEIGHT - 150),
-                            120,
-                            120
-                    )
-            );
+                System.out.println("Spawn eseguito! Prossimo tra " + (spawnDelay/1000.0) + " secondi.");
+            }
         }
 
         Iterator<Nemico> iter = nemici.iterator();
-
         while (iter.hasNext()) {
-
             Nemico n = iter.next();
-
             n.update(1.0);
-
             if (!n.isAlive() || n.getX() < -150) {
-
                 iter.remove();
             }
         }
@@ -166,76 +125,42 @@ public class App extends Application {
         // SFONDO
         if (immagineSfondo != null) {
 
-            gc.drawImage(
-                    immagineSfondo,
-                    0,
-                    0,
-                    WIDTH,
-                    HEIGHT
-            );
+            gc.drawImage(immagineSfondo, 0, 0, WIDTH, HEIGHT);
 
         } else {
 
             gc.setFill(Color.BLACK);
 
-            gc.fillRect(
-                    0,
-                    0,
-                    WIDTH,
-                    HEIGHT
-            );
+            gc.fillRect(0, 0, WIDTH, HEIGHT);
         }
 
         // BAMBINO
         bambino.draw(gc);
 
-        drawHealthBar(
-                gc,
-                bambino,
-                Color.LIME
-        );
+        drawHealthBar(gc, bambino, Color.LIME);
 
         // NEMICI
         for (Nemico n : nemici) {
 
             n.draw(gc);
 
-            drawHealthBar(
-                    gc,
-                    n,
-                    Color.RED
-            );
+            drawHealthBar(gc, n, Color.RED);
         }
     }
 
-    private void drawHealthBar(
-            GraphicsContext gc,
-            Sprite s,
-            Color color
-    ) {
+    private void drawHealthBar(GraphicsContext gc, Sprite s, Color color) {
 
         double barW = s.getDimensionX();
 
-        double currentW =
-                (s.health / s.maxHealth) * barW;
+        double currentW = (s.health / s.maxHealth) * barW;
 
         gc.setFill(Color.BLACK);
 
-        gc.fillRect(
-                s.getX(),
-                s.getY() - 15,
-                barW,
-                8
-        );
+        gc.fillRect(s.getX(), s.getY() - 15, barW, 8);
 
         gc.setFill(color);
 
-        gc.fillRect(
-                s.getX(),
-                s.getY() - 15,
-                currentW,
-                8
-        );
+        gc.fillRect(s.getX(), s.getY() - 15, currentW, 8);
     }
 
     public static void main(String[] args) {

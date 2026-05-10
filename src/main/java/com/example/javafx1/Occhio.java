@@ -70,13 +70,10 @@ public class Occhio extends Nemico {
     public void update(double deltaTime) {
 
         this.x -= 0.3;
-        this.y += Math.sin(System.currentTimeMillis() * 0.005) * 0.3;
+        this.y += Math.sin(System.currentTimeMillis() * 0.005) * 0.1;
     }
 
-    public void attackArea(
-            List<Sprite> bersagli,
-            long currentTime
-    ) {
+    public void attackArea(List<Sprite> bersagli, long currentTime) {
         if (canAttack(currentTime)) {
             boolean haColpito = false;
             for (Sprite s : bersagli) {
