@@ -2,109 +2,58 @@ package com.example.javafx1;
 
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
-import javafx.scene.image.PixelReader;
-import javafx.scene.image.WritableImage;
 
-public class Leo {
+public class Leo extends Sprite {
 
-    // Spritesheet
-    private Image spritesheet;
-    private double x;
-    private double y;
+    private Image spriteSheet;
 
-    // *** AGGIUNTO *** Scala di Leo (2.0 = doppia dimensione, 0.5 = metà)
-    private double scala = 3.0;
+    // frame corrente
+    private int currentFrame = 0;
 
-    // Animazione
-    private int posaAttuale = 0;        // 0-11 (12 pose totali)
-    private double tempoAccumulato = 0;
-    private static final double INTERVALLO = 10.0;  // Cambia posa ogni 10 secondi
+    // tempo ultimo cambio sprite
+    private long lastFrameChange = 0;
 
-    // Dimensioni frame
-    private static final int FRAME_WIDTH = 32;
-    private static final int FRAME_HEIGHT = 32;
-    private static final int COLS = 3;  // 3 colonne
-    private static final int ROWS = 4;  // 4 righe
+    // ogni quanto cambia frame
+    private final long FRAME_DURATION = 1000;
 
-    /**
-     * Crea Leo
-     * @param pathSpritesheet Il percorso al file dello spritesheet
-     * @param x Posizione X
-     * @param y Posizione Y
-     */
-    public Leo(String pathSpritesheet, double x, double y) {
+    // numero frame nello spritesheet
+    private final int TOTAL_FRAMES = 3;
+
+    public Leo(double x, double y, double width, double height) {
+
+        super(x, y, width, height);
+
+        this.health = 1000;
+        this.maxHealth = 1000;
+
         try {
-            this.spritesheet = new Image(pathSpritesheet);
-            this.x = x;
-            this.y = y;
+            spriteSheet = new Image(getClass().getResourceAsStream("/img/Leo.png"));
+            System.out.println("Sprite Leo caricato!");
         } catch (Exception e) {
-            System.err.println("Errore caricamento Leo: " + e.getMessage());
+            System.out.println("Errore caricamento Leo: " + e.getMessage());
         }
     }
 
-    // *** AGGIUNTO *** Costruttore con scala personalizzata
-    public Leo(String pathSpritesheet, double x, double y, double scala) {
-        this(pathSpritesheet, x, y);
-        this.scala = scala;
-    }
-
-    /**
-     * Aggiorna l'animazione di Leo
-     */
-    public void update(double deltaTime) {
-        tempoAccumulato += deltaTime;
-
-        if (tempoAccumulato >= INTERVALLO) {
-            tempoAccumulato = 0;
-            posaAttuale = (posaAttuale + 1) % (ROWS * COLS);
-        }
-    }
-
-    /**
-     * Disegna Leo sullo schermo
-     */
+    @Override
     public void draw(GraphicsContext gc) {
-        if (spritesheet == null) return;
 
-        // Calcola riga e colonna
-        int riga = posaAttuale / COLS;
-        int colonna = posaAttuale % COLS;
-
-        // Posizione del frame nello spritesheet
-        int spriteX = colonna * FRAME_WIDTH;
-        int spriteY = riga * FRAME_HEIGHT;
-
-        // Estrai il frame
-        WritableImage frame = estraiFrame(spriteX, spriteY);
-
-        // *** MODIFICATO *** Disegna con scala (dimensioni originali * scala)
-        double drawWidth = FRAME_WIDTH * scala;
-        double drawHeight = FRAME_HEIGHT * scala;
-        gc.drawImage(frame, x, y, drawWidth, drawHeight);
-    }
-
-    /**
-     * Estrae un frame dallo spritesheet
-     */
-    private WritableImage estraiFrame(int startX, int startY) {
-        WritableImage frame = new WritableImage(FRAME_WIDTH, FRAME_HEIGHT);
-        PixelReader reader = spritesheet.getPixelReader();
-
-        for (int y = 0; y < FRAME_HEIGHT; y++) {
-            for (int x = 0; x < FRAME_WIDTH; x++) {
-                int argb = reader.getArgb(startX + x, startY + y);
-                frame.getPixelWriter().setArgb(x, y, argb);
-            }
+        if (spriteSheet != null) {
+            double frameWidth = spriteSheet.getWidth() / TOTAL_FRAMES;
+            double frameHeight = spriteSheet.getHeight() / 4;
+            gc.drawImage(spriteSheet, currentFrame * frameWidth, 0, frameWidth, frameHeight, x, y, dimensionX, dimensionY);
         }
-
-        return frame;
     }
 
-    public void setScala(double scala) {
-        this.scala = scala;
-    }
+    @Override
+    public void update(double deltaTime) {
 
-    public double getScala() {
-        return scala;
+        long currentTime = System.currentTimeMillis();
+        if (currentTime - lastFrameChange >= FRAME_DURATION) {
+            currentFrame++;
+            if (currentFrame >= TOTAL_FRAMES) {
+                currentFrame = 0;
+            }
+            lastFrameChange = currentTime;
+        }
     }
 }

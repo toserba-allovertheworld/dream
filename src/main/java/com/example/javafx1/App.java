@@ -25,7 +25,7 @@ public class App extends Application {
     private long lastSpawnTime = 0;
     private long spawnDelay = 7500;
 
-    private Sprite bambino;
+    private Leo bambino;
 
     private List<Nemico> nemici = new ArrayList<>();
 
@@ -52,28 +52,7 @@ public class App extends Application {
             System.out.println("Errore caricamento immagini: " + e.getMessage());
         }
 
-        // BAMBINO
-        bambino = new Sprite(40, HEIGHT / 2 - 80, 120, 160) {
-
-            @Override
-            public void draw(GraphicsContext gc) {
-
-                if (spriteSheetBambino != null) {
-
-                    // FRAME SINGOLO
-                    double frameWidth = spriteSheetBambino.getWidth() / 3;
-
-                    double frameHeight = spriteSheetBambino.getHeight() / 4;
-
-                    // SOLO FRAME ALTO SINISTRA
-                    gc.drawImage(spriteSheetBambino, 0, 0, frameWidth, frameHeight, x, y, 120, 160);
-                }
-            }
-
-            @Override
-            public void update(double dt) {
-            }
-        };
+        bambino = new Leo(40, HEIGHT / 2 - 80, 120, 160);
 
         bambino.health = 1000;
         bambino.maxHealth = 1000;
@@ -104,7 +83,7 @@ public class App extends Application {
                 lastSpawnTime = currentTime; // Reset del timer per il prossimo spawn
                 occhiGeneratiFinora++;
 
-                System.out.println("Spawn eseguito! Prossimo tra " + (spawnDelay/1000.0) + " secondi.");
+                System.out.println("Spawn eseguito! Prossimo tra " + (spawnDelay / 1000.0) + " secondi.");
             }
         }
 
@@ -116,6 +95,7 @@ public class App extends Application {
                 iter.remove();
             }
         }
+        bambino.update(1.0);
     }
 
     private void draw(GraphicsContext gc) {
