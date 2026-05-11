@@ -16,21 +16,22 @@ import java.util.List;
 
 public class App extends Application {
 
-    private Image immagineSfondo;
-    private Image spriteSheetBambino;
-
-    private int occhi = 10;
-    private int occhiGeneratiFinora = 0;
-    private final double[][] spawnPoints = {{1920, 115}, {1920, 280}, {1920, 445}, {1920, 610}, {1920, 775}};
-    private long lastSpawnTime = 0;
-    private long spawnDelay = 7500;
-
-    private Leo bambino;
-
-    private List<Nemico> nemici = new ArrayList<>();
-
     private final double WIDTH = 1920;
     private final double HEIGHT = 1080;
+
+    private List<Nemico> nemici = new ArrayList<>();
+    private List<Difesa> difese = new ArrayList<>();
+
+    private final double[][] spawnPoints = {{1920, 115}, {1920, 280}, {1920, 445}, {1920, 610}, {1920, 775}};
+
+    private Image immagineSfondo;
+    private int occhi = 10;
+    private int occhiGeneratiFinora = 0;
+
+    private long lastSpawnTime = 0;
+    private long spawnDelay = 7500;
+    private Leo bambino;
+    private EssenzaBar essenzaBar;
 
     @Override
     public void start(Stage stage) {
@@ -40,25 +41,17 @@ public class App extends Application {
 
         // CARICAMENTO IMMAGINI
         try {
-
             immagineSfondo = new Image(getClass().getResourceAsStream("/img/bg.png"));
-
-            spriteSheetBambino = new Image(getClass().getResourceAsStream("/img/Leo.png"));
-
             System.out.println("Immagini caricate!");
-
         } catch (Exception e) {
-
             System.out.println("Errore caricamento immagini: " + e.getMessage());
         }
 
-        bambino = new Leo(40, HEIGHT / 2 - 80, 120, 160);
-
+        bambino = new Leo(150, 150, 240, 320);
         bambino.health = 1000;
         bambino.maxHealth = 1000;
 
         AnimationTimer timer = new AnimationTimer() {
-
             @Override
             public void handle(long now) {
                 update();
@@ -69,6 +62,9 @@ public class App extends Application {
         stage.setScene(new Scene(new StackPane(canvas), WIDTH, HEIGHT));
         stage.setTitle("Il Gioco dei Sogni - Proteggi il Bambino");
         stage.show();
+        difese.add(new Teddy(400, 300));
+
+        essenzaBar = new EssenzaBar();
     }
 
     private void update() {
@@ -96,36 +92,41 @@ public class App extends Application {
             }
         }
         bambino.update(1.0);
+        essenzaBar.update(0.016);
+
+        for (Difesa d : difese) {
+            d.update(1.0);
+        }
     }
 
     private void draw(GraphicsContext gc) {
 
         gc.clearRect(0, 0, WIDTH, HEIGHT);
-
         // SFONDO
         if (immagineSfondo != null) {
-
             gc.drawImage(immagineSfondo, 0, 0, WIDTH, HEIGHT);
-
         } else {
-
             gc.setFill(Color.BLACK);
-
             gc.fillRect(0, 0, WIDTH, HEIGHT);
         }
 
         // BAMBINO
         bambino.draw(gc);
-
         drawHealthBar(gc, bambino, Color.LIME);
 
         // NEMICI
         for (Nemico n : nemici) {
-
             n.draw(gc);
-
             drawHealthBar(gc, n, Color.RED);
         }
+
+        // DIFEDA
+        for (Difesa d : difese) {
+            d.draw(gc);
+            drawHealthBar(gc, d, Color.CYAN);
+        }
+
+        essenzaBar.draw(gc);
     }
 
     private void drawHealthBar(GraphicsContext gc, Sprite s, Color color) {
