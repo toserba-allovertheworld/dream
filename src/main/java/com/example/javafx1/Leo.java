@@ -14,7 +14,7 @@ public class Leo extends Sprite {
     private long lastFrameChange = 0;
 
     // ogni quanto cambia frame
-    private final long FRAME_DURATION = 1000;
+    private final long FRAME_DURATION = 5000;
 
     // numero frame nello spritesheet
     private final int TOTAL_FRAMES = 3;
