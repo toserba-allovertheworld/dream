@@ -22,14 +22,23 @@ public class App extends Application {
     private List<Nemico> nemici = new ArrayList<>();
     private List<Difesa> difese = new ArrayList<>();
 
-    private final double[][] spawnPoints = {{1920, 115}, {1920, 280}, {1920, 445}, {1920, 610}, {1920, 775}};
+    private final double[][] spawnPoints = {
+            {1920, 115},
+            {1920, 280},
+            {1920, 445},
+            {1920, 610},
+            {1920, 775}
+    };
 
     private Image immagineSfondo;
+    private Image orsoIcon;
+
     private int occhi = 10;
     private int occhiGeneratiFinora = 0;
 
     private long lastSpawnTime = 0;
     private long spawnDelay = 7500;
+
     private Leo bambino;
     private EssenzaBar essenzaBar;
 
@@ -39,17 +48,20 @@ public class App extends Application {
         Canvas canvas = new Canvas(WIDTH, HEIGHT);
         GraphicsContext gc = canvas.getGraphicsContext2D();
 
-        // CARICAMENTO IMMAGINI
         try {
             immagineSfondo = new Image(getClass().getResourceAsStream("/img/bg.png"));
-            System.out.println("Immagini caricate!");
+            orsoIcon = new Image(getClass().getResourceAsStream("/img/Teddy.png"));
         } catch (Exception e) {
-            System.out.println("Errore caricamento immagini: " + e.getMessage());
+            System.out.println(e.getMessage());
         }
 
         bambino = new Leo(150, 150, 240, 320);
         bambino.health = 1000;
         bambino.maxHealth = 1000;
+
+        essenzaBar = new EssenzaBar();
+
+        difese.add(new Teddy(400, 300));
 
         AnimationTimer timer = new AnimationTimer() {
             @Override
@@ -58,40 +70,49 @@ public class App extends Application {
                 draw(gc);
             }
         };
+
         timer.start();
+
         stage.setScene(new Scene(new StackPane(canvas), WIDTH, HEIGHT));
         stage.setTitle("Il Gioco dei Sogni - Proteggi il Bambino");
         stage.show();
-        difese.add(new Teddy(400, 300));
-
-        essenzaBar = new EssenzaBar();
     }
 
     private void update() {
+
         long currentTime = System.currentTimeMillis();
+
         if (occhiGeneratiFinora < occhi) {
+
             if (currentTime - lastSpawnTime >= spawnDelay) {
+
                 int indicePunto = (int) (Math.random() * spawnPoints.length);
+
                 double spawnX = spawnPoints[indicePunto][0];
                 double spawnY = spawnPoints[indicePunto][1];
-                nemici.add(new Occhio(spawnX, spawnY, 120, 120));
 
-                lastSpawnTime = currentTime; // Reset del timer per il prossimo spawn
+                nemici.add(new Occhio(spawnX, spawnY, 120, 120, bambino));
+
+                lastSpawnTime = currentTime;
                 occhiGeneratiFinora++;
-
-                System.out.println("Spawn eseguito! Prossimo tra " + (spawnDelay / 1000.0) + " secondi.");
             }
         }
 
         Iterator<Nemico> iter = nemici.iterator();
+
         while (iter.hasNext()) {
+
             Nemico n = iter.next();
+
             n.update(1.0);
+
             if (!n.isAlive() || n.getX() < -150) {
                 iter.remove();
             }
         }
+
         bambino.update(1.0);
+
         essenzaBar.update(0.016);
 
         for (Difesa d : difese) {
@@ -102,7 +123,7 @@ public class App extends Application {
     private void draw(GraphicsContext gc) {
 
         gc.clearRect(0, 0, WIDTH, HEIGHT);
-        // SFONDO
+
         if (immagineSfondo != null) {
             gc.drawImage(immagineSfondo, 0, 0, WIDTH, HEIGHT);
         } else {
@@ -110,23 +131,49 @@ public class App extends Application {
             gc.fillRect(0, 0, WIDTH, HEIGHT);
         }
 
-        // BAMBINO
         bambino.draw(gc);
+
         drawHealthBar(gc, bambino, Color.LIME);
 
-        // NEMICI
         for (Nemico n : nemici) {
             n.draw(gc);
             drawHealthBar(gc, n, Color.RED);
         }
 
-        // DIFEDA
         for (Difesa d : difese) {
             d.draw(gc);
             drawHealthBar(gc, d, Color.CYAN);
         }
 
         essenzaBar.draw(gc);
+
+        double boxSize = 120;
+        double boxX = 20;
+        double boxY = HEIGHT - boxSize - 20;
+
+        boolean sbloccato = essenzaBar.getEssenza() >= 50;
+
+        gc.setFill(sbloccato ? Color.DARKGREEN : Color.GRAY);
+        gc.fillRect(boxX, boxY, boxSize, boxSize);
+
+        gc.setStroke(Color.BLACK);
+        gc.strokeRect(boxX, boxY, boxSize, boxSize);
+
+        if (orsoIcon != null) {
+
+            double imgSize = boxSize * 0.8;
+
+            double imgX = boxX + (boxSize - imgSize) / 2;
+            double imgY = boxY + (boxSize - imgSize) / 2;
+
+            if (!sbloccato) {
+                gc.setGlobalAlpha(0.35);
+            }
+
+            gc.drawImage(orsoIcon, imgX, imgY, imgSize, imgSize);
+
+            gc.setGlobalAlpha(1.0);
+        }
     }
 
     private void drawHealthBar(GraphicsContext gc, Sprite s, Color color) {
@@ -145,7 +192,6 @@ public class App extends Application {
     }
 
     public static void main(String[] args) {
-
         launch(args);
     }
 }
