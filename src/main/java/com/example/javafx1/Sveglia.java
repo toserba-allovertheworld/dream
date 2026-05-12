@@ -5,7 +5,7 @@ import javafx.scene.image.Image;
 
 import java.io.InputStream;
 
-public class Clown extends Nemico {
+public class Sveglia extends Nemico {
 
     private static Image SPRITE_SHEET;
 
@@ -41,7 +41,7 @@ public class Clown extends Nemico {
 
     private int currentImage = 0;
 
-    public Clown(
+    public Sveglia(
             double x,
             double y,
             double dimensionX,
@@ -102,7 +102,7 @@ public class Clown extends Nemico {
     public void update(double deltaTime) {
 
         long currentTime = System.currentTimeMillis();
-        if (currentFrame == 5){
+        if (currentFrame == 6){
             currentFrame = 0;
         }else {
             if (currentImage == 10){
@@ -116,7 +116,7 @@ public class Clown extends Nemico {
         if (!attacking) {
 
             if (x > stopX) {
-                this.x -= 0.5;
+                this.x -= 1;
             } else {
                 this.x = stopX;
                 attacking = true;

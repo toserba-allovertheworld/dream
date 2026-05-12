@@ -105,7 +105,7 @@ public class Frammento extends Nemico {
         if (currentFrame == 3){
             currentFrame = 0;
         }else {
-            if (currentImage == 10){
+            if (currentImage == 30){
                 currentFrame++;
                 currentImage = 0;
             }else {
@@ -116,7 +116,7 @@ public class Frammento extends Nemico {
         if (!attacking) {
 
             if (x > stopX) {
-                this.x -= 1;
+                this.x -= 0.3;
             } else {
                 this.x = stopX;
                 attacking = true;
