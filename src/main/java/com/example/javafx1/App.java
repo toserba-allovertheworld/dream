@@ -22,15 +22,15 @@ public class App extends Application {
     private List<Difesa> difese = new ArrayList<>();
     private List<Nemico> nemici = new ArrayList<>();
 
+    private Griglia griglia;
+    private boolean teddySelected = false;
+
     private int nemiciGeneratiFinora = 0;
 
-    private final double[][] spawnPoints = {
-            {1920, 115},
-            {1920, 280},
-            {1920, 445},
-            {1920, 610},
-            {1920, 775}
-    };
+    private final double[] spawnPointsOcchio = {115, 280, 445, 610, 775};
+    private final double[] spawnPointsOmbra = {150, 320, 460, 650, 790};
+    private final double[] spawnPointsClown = {175, 340, 500, 660, 790};
+    private final double[] spawnPointsFrammento = {160, 330, 500, 660, 790};
 
     private Image immagineSfondo;
     private Image orsoIcon;
@@ -41,11 +41,45 @@ public class App extends Application {
     private Leo bambino;
     private EssenzaBar essenzaBar;
 
+    public void spawnNemico() {
+        switch ((int) (Math.random() * 4)) {
+            case 0:
+                nemici.add(new Occhio(1920, getSpawnY(0), 120, 120, bambino));
+                break;
+            case 1:
+                nemici.add(new Ombra(1920 - 250, getSpawnY(1), 120, 120, bambino));
+                break;
+            case 2:
+                nemici.add(new Clown(1920, getSpawnY(2), 120, 120, bambino));
+                break;
+            case 3:
+                nemici.add(new Frammento(1920, getSpawnY(3), 120, 120, bambino));
+                break;
+        }
+    }
+
+    public double getSpawnY(int nemico) {
+        int indicePunto = (int) (Math.random() * 4);
+        switch (nemico) {
+            case 0:
+                return spawnPointsOcchio[indicePunto];
+            case 1:
+                return spawnPointsOmbra[indicePunto];
+            case 2:
+                return spawnPointsClown[indicePunto];
+            case 3:
+                return spawnPointsFrammento[indicePunto];
+            default:
+                return -1;
+        }
+    }
+
     @Override
     public void start(Stage stage) {
 
         Canvas canvas = new Canvas(WIDTH, HEIGHT);
         GraphicsContext gc = canvas.getGraphicsContext2D();
+        griglia = new Griglia(5, 9, 147, 165, 485, 150);
 
         try {
             immagineSfondo = new Image(getClass().getResourceAsStream("/img/bg.png"));
@@ -57,10 +91,40 @@ public class App extends Application {
         bambino = new Leo(150, 150, 240, 320);
         bambino.health = 1000;
         bambino.maxHealth = 1000;
-
         essenzaBar = new EssenzaBar();
 
-        difese.add(new Teddy(400, 300));
+        canvas.setOnMouseClicked(e -> {
+            double mouseX = e.getX();
+            double mouseY = e.getY();
+            double boxSize = 120;
+            double boxX = 20;
+            double boxY = HEIGHT - boxSize - 20;
+
+            // CLICK CARTA TEDDY
+            if (mouseX >= boxX &&
+                    mouseX <= boxX + boxSize &&
+                    mouseY >= boxY &&
+                    mouseY <= boxY + boxSize) {
+                if (essenzaBar.getEssenza() >= 25) {
+                    teddySelected = true;
+                }
+                return;
+            }
+
+            // TEDDY SELEZIONATO
+            if (teddySelected) {
+                int row = griglia.getRow(mouseY);
+                int col = griglia.getCol(mouseX);
+
+                if (griglia.isInsideGrid(row, col) && !griglia.isOccupied(row, col) && essenzaBar.useEssenza(25)) {
+                    double x = griglia.getCellX(col) + 10;
+                    double y = griglia.getCellY(row) + 20;
+                    difese.add(new Teddy(x, y));
+                    griglia.occupyCell(row, col);
+                    teddySelected = false;
+                }
+            }
+        });
 
         AnimationTimer timer = new AnimationTimer() {
             @Override
@@ -84,18 +148,7 @@ public class App extends Application {
         if (nemiciGeneratiFinora < 50) {
 
             if (currentTime - lastSpawnTime >= spawnDelay) {
-
-                int indicePunto = (int) (Math.random() * spawnPoints.length);
-                double spawnX = spawnPoints[indicePunto][0];
-                double spawnY = spawnPoints[indicePunto][1];
-
-                switch ((int) (Math.random() * 4)){
-                    case 0: nemici.add(new Occhio(spawnX, spawnY, 120, 120, bambino)); break;
-                    case 1: nemici.add(new Ombra(1920 - 250, spawnY, 120, 120, bambino)); break;
-                    case 2: nemici.add(new Clown(spawnX, spawnY, 120, 120, bambino)); break;
-                    case 3: nemici.add(new Frammento(spawnX, spawnY, 120, 120, bambino)); break;
-                }
-
+                spawnNemico();
                 lastSpawnTime = currentTime;
                 nemiciGeneratiFinora++;
             }
@@ -122,7 +175,6 @@ public class App extends Application {
     }
 
     private void draw(GraphicsContext gc) {
-
         gc.clearRect(0, 0, WIDTH, HEIGHT);
 
         if (immagineSfondo != null) {
@@ -133,12 +185,13 @@ public class App extends Application {
         }
 
         bambino.draw(gc);
+        griglia.draw(gc);
 
         drawHealthBar(gc, bambino, Color.LIME);
 
         for (Nemico n : nemici) {
             n.draw(gc);
-            drawHealthBar(gc, n, Color.RED);
+            //drawHealthBar(gc, n, Color.RED); // <-- Secondo me è brutta da vedere e mi fa impazzire vedere che i nemici non vengono spawnati perfettamente
         }
 
         for (Difesa d : difese) {

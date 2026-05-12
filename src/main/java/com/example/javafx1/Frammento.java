@@ -10,35 +10,23 @@ public class Frammento extends Nemico {
     private static Image SPRITE_SHEET;
 
     static {
-
         try {
-
-            InputStream stream =
-                    Frammento.class.getResourceAsStream("/img/frammento.png");
-
+            InputStream stream = Frammento.class.getResourceAsStream("/img/frammento.png");
             if (stream != null) {
                 SPRITE_SHEET = new Image(stream);
             }
-
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
     }
 
     private Leo targetLeo;
-
     private final double stopX = 510;
-
     private boolean attacking = false;
-
     private boolean disappearing = false;
-
     private long attackStartTime = 0;
-
     private final long attackAnimationDuration = 1200;
-
     private int currentFrame = 0;
-
     private int currentImage = 0;
 
     public Frammento(

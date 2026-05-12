@@ -18,12 +18,6 @@ public abstract class Nemico extends Sprite {
         this.velocityY = 0;
     }
 
-    public Nemico(double x, double y, double dimensionX, double dimensionY) {
-    }
-
-    public void move() {
-    }
-
     @Override
     public void update(double deltaTime) {
         // Da implementare
