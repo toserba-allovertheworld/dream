@@ -10,16 +10,11 @@ public class Occhio extends Nemico {
     private static Image SPRITE_SHEET;
 
     static {
-
         try {
-
-            InputStream stream =
-                    Occhio.class.getResourceAsStream("/img/occhio.png");
-
+            InputStream stream = Occhio.class.getResourceAsStream("/img/occhio.png");
             if (stream != null) {
                 SPRITE_SHEET = new Image(stream);
             }
-
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
