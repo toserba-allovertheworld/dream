@@ -13,7 +13,7 @@ public class Ombra extends Nemico {
 
     private long timerStato; // Inizializzato nel costruttore
     private double targetX;
-    private final double LARGHEZZA_CELLA = 145;
+    private final double LARGHEZZA_CELLA = 140;
     private int currentRow = 0;
 
     private int frameCounter = 0;
