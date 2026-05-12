@@ -9,6 +9,8 @@ public class Ombra extends Nemico{
 
 
     private static Image SPRITE_SHEET;
+    private final int TOTAL_COLS = 5; // Numero di sprite per riga
+    private final int TOTAL_ROWS = 6; // Numero di righe totali
 
     static {
 
@@ -42,18 +44,25 @@ public class Ombra extends Nemico{
     public void draw(GraphicsContext gc) {
 
         if (SPRITE_SHEET != null) {
+            // Calcoliamo quanto è grande un singolo quadratino (frame)
+            double frameWidth = SPRITE_SHEET.getWidth() / TOTAL_COLS;
+            double frameHeight = SPRITE_SHEET.getHeight() / TOTAL_ROWS;
 
-            double frameWidth = SPRITE_SHEET.getWidth() / 3.0;
+            // Scegliamo quale riga e colonna vogliamo usare
+            // Esempio: riga 0 per il movimento, riga 1 per l'attacco
+            int row = 0;
+            int col = currentFrame;
 
-            double frameHeight = SPRITE_SHEET.getHeight();
+            // Coordinate X e Y di partenza nell'immagine sorgente
+            double sx = col * frameWidth;
+            double sy = row * frameHeight;
 
-            double aspectRatio = frameWidth / frameHeight;
-
-            double drawWidth = dimensionX;
-
-            double drawHeight = dimensionX / aspectRatio;
-
-            gc.drawImage(SPRITE_SHEET, currentFrame * frameWidth, 0, frameWidth, frameHeight, x, y, drawWidth, drawHeight);
+            // Disegniamo solo quel pezzetto
+            gc.drawImage(
+                    SPRITE_SHEET,
+                    sx, sy, frameWidth, frameHeight, // Area dell'immagine da ritagliare
+                    x, y, dimensionX, dimensionY    // Dove e quanto grande disegnarlo a schermo
+            );
         }
     }
 

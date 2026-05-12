@@ -19,8 +19,10 @@ public class App extends Application {
     private final double WIDTH = 1920;
     private final double HEIGHT = 1080;
 
-    private List<Nemico> nemici = new ArrayList<>();
     private List<Difesa> difese = new ArrayList<>();
+    private List<Nemico> nemici = new ArrayList<>();
+
+    private int nemiciGeneratiFinora = 0;
 
     private final double[][] spawnPoints = {
             {1920, 115},
@@ -32,9 +34,6 @@ public class App extends Application {
 
     private Image immagineSfondo;
     private Image orsoIcon;
-
-    private int occhi = 10;
-    private int occhiGeneratiFinora = 0;
 
     private long lastSpawnTime = 0;
     private long spawnDelay = 7500;
@@ -82,28 +81,29 @@ public class App extends Application {
 
         long currentTime = System.currentTimeMillis();
 
-        if (occhiGeneratiFinora < occhi) {
+        if (nemiciGeneratiFinora < 50) {
 
             if (currentTime - lastSpawnTime >= spawnDelay) {
 
                 int indicePunto = (int) (Math.random() * spawnPoints.length);
-
                 double spawnX = spawnPoints[indicePunto][0];
                 double spawnY = spawnPoints[indicePunto][1];
 
-                nemici.add(new Occhio(spawnX, spawnY, 120, 120, bambino));
+                switch ((int) (Math.random() * 3)){
+                    case 0: nemici.add(new Occhio(spawnX, spawnY, 120, 120, bambino)); break;
+                    case 1: nemici.add(new Ombra(spawnX, spawnY, 120, 120, bambino)); break;
+                    case 2: nemici.add(new Clown(spawnX, spawnY, 120, 120, bambino)); break;
+                }
 
                 lastSpawnTime = currentTime;
-                occhiGeneratiFinora++;
+                nemiciGeneratiFinora++;
             }
         }
 
         Iterator<Nemico> iter = nemici.iterator();
 
         while (iter.hasNext()) {
-
             Nemico n = iter.next();
-
             n.update(1.0);
 
             if (!n.isAlive() || n.getX() < -150) {
