@@ -2,28 +2,22 @@ package com.example.javafx1;
 
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
-
 import java.io.InputStream;
 
-public class Ombra extends Nemico{
-
+public class Ombra extends Nemico {
 
     private static Image SPRITE_SHEET;
-    private final int TOTAL_COLS = 5; // Numero di sprite per riga
-    private final int TOTAL_ROWS = 6; // Numero di righe totali
+    private final int TOTAL_COLS = 5;
+    private final int TOTAL_ROWS = 6;
+    private Stato statoAttuale = Stato.IDLE;
 
-    static {
+    private long timerStato; // Inizializzato nel costruttore
+    private double targetX;
+    private final double LARGHEZZA_CELLA = 145;
+    private int currentRow = 0;
 
-        try {
-            InputStream stream = Ombra.class.getResourceAsStream("/img/ombra.png");
-            if (stream != null) {
-                SPRITE_SHEET = new Image(stream);
-            }
-
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-        }
-    }
+    private int frameCounter = 0;
+    private final int FRAME_DELAY = 10;
 
     private Leo targetLeo;
     private final double stopX = 540;
@@ -32,36 +26,39 @@ public class Ombra extends Nemico{
     private long attackStartTime = 0;
     private final long attackAnimationDuration = 1200;
 
+    static {
+        try {
+            InputStream stream = Ombra.class.getResourceAsStream("/img/ombra.png");
+            if (stream != null) {
+                SPRITE_SHEET = new Image(stream);
+            }
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
     private int currentFrame = 0;
 
     public Ombra(double x, double y, double dimensionX, double dimensionY, Leo leo) {
         super(x, y, dimensionX, dimensionY, 80.0, 10.0, 1.5);
         this.targetLeo = leo;
         this.attackSpeed = 2000;
+        this.timerStato = System.currentTimeMillis();
     }
 
     @Override
     public void draw(GraphicsContext gc) {
-
         if (SPRITE_SHEET != null) {
-            // Calcoliamo quanto è grande un singolo quadratino (frame)
             double frameWidth = SPRITE_SHEET.getWidth() / TOTAL_COLS;
             double frameHeight = SPRITE_SHEET.getHeight() / TOTAL_ROWS;
 
-            // Scegliamo quale riga e colonna vogliamo usare
-            // Esempio: riga 0 per il movimento, riga 1 per l'attacco
-            int row = 0;
-            int col = currentFrame;
+            double sx = currentFrame * frameWidth;
+            double sy = currentRow * frameHeight;
 
-            // Coordinate X e Y di partenza nell'immagine sorgente
-            double sx = col * frameWidth;
-            double sy = row * frameHeight;
-
-            // Disegniamo solo quel pezzetto
             gc.drawImage(
                     SPRITE_SHEET,
-                    sx, sy, frameWidth, frameHeight, // Area dell'immagine da ritagliare
-                    x, y, dimensionX, dimensionY    // Dove e quanto grande disegnarlo a schermo
+                    sx, sy, frameWidth, frameHeight,
+                    x, y, dimensionX, dimensionY
             );
         }
     }
@@ -69,21 +66,47 @@ public class Ombra extends Nemico{
     @Override
     public void update(double deltaTime) {
         long currentTime = System.currentTimeMillis();
-        if (!attacking) {
-            if (x > stopX) {
-                this.x -= 0.3;
-                this.y += Math.sin(currentTime * 0.005) * 0.1;
-            } else {
-                this.x = stopX;
-                attacking = true;
-                attackStartTime = currentTime;
-                currentFrame = 1;
-            }
 
+        // 1. Gestione Animazione Frame
+        frameCounter++;
+        if (frameCounter >= FRAME_DELAY) {
+            if (statoAttuale == Stato.IDLE) {
+                currentFrame = (currentFrame + 1) % 4;
+            } else {
+                currentFrame = (currentFrame + 1) % 5;
+            }
+            frameCounter = 0;
+        }
+
+        // 2. Gestione del Movimento
+        if (!attacking) {
+            if (statoAttuale == Stato.IDLE) {
+                currentRow = 0;
+
+                if (currentTime - timerStato >= 2500) {
+                    statoAttuale = Stato.DASH;
+                    targetX = this.x - LARGHEZZA_CELLA;
+                    timerStato = currentTime;
+                }
+            } else if (statoAttuale == Stato.DASH) {
+                currentRow = 1;
+                this.x -= 8;
+
+                if (this.x <= targetX || this.x <= stopX) {
+                    if (this.x <= stopX) {
+                        this.x = stopX;
+                        attacking = true;
+                        attackStartTime = currentTime;
+                    } else {
+                        statoAttuale = Stato.IDLE;
+                        timerStato = currentTime;
+                    }
+                }
+            }
         } else {
             long elapsed = currentTime - attackStartTime;
+
             if (elapsed >= 500 && !disappearing) {
-                currentFrame = 2;
                 disappearing = true;
                 targetLeo.takeDamage(damage);
             }

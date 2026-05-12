@@ -91,7 +91,7 @@ public class App extends Application {
 
                 switch ((int) (Math.random() * 4)){
                     case 0: nemici.add(new Occhio(spawnX, spawnY, 120, 120, bambino)); break;
-                    case 1: nemici.add(new Ombra(spawnX, spawnY, 120, 120, bambino)); break;
+                    case 1: nemici.add(new Ombra(1920 - 250, spawnY, 120, 120, bambino)); break;
                     case 2: nemici.add(new Clown(spawnX, spawnY, 120, 120, bambino)); break;
                     case 3: nemici.add(new Frammento(spawnX, spawnY, 120, 120, bambino)); break;
                 }
