@@ -27,7 +27,7 @@ public class Occhio extends Nemico {
 
     private Leo targetLeo;
 
-    private final double stopX = 540;
+    private final double stopX = 510;
 
     private boolean attacking = false;
 
@@ -54,7 +54,7 @@ public class Occhio extends Nemico {
                 dimensionY,
                 80.0,
                 10.0,
-                1.5
+                1
         );
 
         this.targetLeo = leo;
@@ -105,7 +105,7 @@ public class Occhio extends Nemico {
 
             if (x > stopX) {
 
-                this.x -= 0.3;
+                this.x -= 1;
 
                 this.y += Math.sin(currentTime * 0.005) * 0.1;
 
