@@ -16,9 +16,6 @@ public class Leo extends Sprite {
     // ogni quanto cambia frame
     private final long FRAME_DURATION = 5000;
 
-    // numero frame nello spritesheet
-    private final int TOTAL_FRAMES = 3;
-
     public Leo(double x, double y, double width, double height) {
 
         super(x, y, width, height);
@@ -38,9 +35,9 @@ public class Leo extends Sprite {
     public void draw(GraphicsContext gc) {
 
         if (spriteSheet != null) {
-            double frameWidth = spriteSheet.getWidth() / TOTAL_FRAMES;
+            double frameWidth = spriteSheet.getWidth() / 3;
             double frameHeight = spriteSheet.getHeight() / 4;
-            gc.drawImage(spriteSheet, currentFrame * frameWidth, 0, frameWidth, frameHeight, x, y, dimensionX, dimensionY);
+            gc.drawImage(spriteSheet, currentFrame * frameWidth - 30, 0, frameWidth, frameHeight, x, y, dimensionX, dimensionY);
         }
     }
 
@@ -50,7 +47,7 @@ public class Leo extends Sprite {
         long currentTime = System.currentTimeMillis();
         if (currentTime - lastFrameChange >= FRAME_DURATION) {
             currentFrame++;
-            if (currentFrame >= TOTAL_FRAMES) {
+            if (currentFrame >= 3) {
                 currentFrame = 0;
             }
             lastFrameChange = currentTime;
