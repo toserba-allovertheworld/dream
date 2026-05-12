@@ -89,10 +89,11 @@ public class App extends Application {
                 double spawnX = spawnPoints[indicePunto][0];
                 double spawnY = spawnPoints[indicePunto][1];
 
-                switch ((int) (Math.random() * 3)){
+                switch ((int) (Math.random() * 4)){
                     case 0: nemici.add(new Occhio(spawnX, spawnY, 120, 120, bambino)); break;
                     case 1: nemici.add(new Ombra(spawnX, spawnY, 120, 120, bambino)); break;
                     case 2: nemici.add(new Clown(spawnX, spawnY, 120, 120, bambino)); break;
+                    case 3: nemici.add(new Frammento(spawnX, spawnY, 120, 120, bambino)); break;
                 }
 
                 lastSpawnTime = currentTime;

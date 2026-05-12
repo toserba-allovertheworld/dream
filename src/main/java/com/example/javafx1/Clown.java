@@ -102,7 +102,7 @@ public class Clown extends Nemico {
     public void update(double deltaTime) {
 
         long currentTime = System.currentTimeMillis();
-        if (currentFrame == 6){
+        if (currentFrame == 5){
             currentFrame = 0;
         }else {
             if (currentImage == 10){
