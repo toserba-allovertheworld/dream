@@ -86,7 +86,7 @@ public class App extends Application {
 
         try {
             immagineSfondo = new Image(getClass().getResourceAsStream("/img/bg.png"));
-            orsoIcon = new Image(getClass().getResourceAsStream("/img/Teddy.png"));
+            orsoIcon = new Image(getClass().getResourceAsStream("/img/iconaOrsetto.png"));
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
