@@ -20,29 +20,17 @@ public class Griglia {
     // celle occupate
     private boolean[][] occupied;
 
-    public Griglia(
-            int rows,
-            int cols,
-            double cellWidth,
-            double cellHeight,
-            double startX,
-            double startY
-    ) {
-
+    public Griglia(int rows, int cols, double cellWidth, double cellHeight, double startX, double startY) {
         this.rows = rows;
         this.cols = cols;
-
         this.cellWidth = cellWidth;
         this.cellHeight = cellHeight;
-
         this.startX = startX;
         this.startY = startY;
-
         occupied = new boolean[rows][cols];
     }
 
     public int getCol(double mouseX) {
-
         return (int)((mouseX - startX) / cellWidth);
     }
 
@@ -51,10 +39,7 @@ public class Griglia {
     }
 
     public boolean isInsideGrid(int row, int col) {
-        return row >= 0 &&
-                row < rows &&
-                col >= 0 &&
-                col < cols;
+        return row >= 0 && row < rows && col >= 0 && col < cols;
     }
 
     public boolean isOccupied(int row, int col) {
@@ -82,7 +67,6 @@ public class Griglia {
 
         for (int r = 0; r < rows; r++) {
             for (int c = 0; c < cols; c++) {
-
                 double x = getCellX(c);
                 double y = getCellY(r);
 

@@ -166,7 +166,6 @@ public class App extends Application {
         }
 
         bambino.update(1.0);
-
         essenzaBar.update(0.016);
 
         for (Difesa d : difese) {
@@ -204,19 +203,15 @@ public class App extends Application {
         double boxSize = 120;
         double boxX = 20;
         double boxY = HEIGHT - boxSize - 20;
-
         boolean sbloccato = essenzaBar.getEssenza() >= 50;
 
         gc.setFill(sbloccato ? Color.DARKGREEN : Color.GRAY);
         gc.fillRect(boxX, boxY, boxSize, boxSize);
-
         gc.setStroke(Color.BLACK);
         gc.strokeRect(boxX, boxY, boxSize, boxSize);
 
         if (orsoIcon != null) {
-
             double imgSize = boxSize * 0.8;
-
             double imgX = boxX + (boxSize - imgSize) / 2;
             double imgY = boxY + (boxSize - imgSize) / 2;
 
@@ -225,23 +220,16 @@ public class App extends Application {
             }
 
             gc.drawImage(orsoIcon, imgX, imgY, imgSize, imgSize);
-
             gc.setGlobalAlpha(1.0);
         }
     }
 
     private void drawHealthBar(GraphicsContext gc, Sprite s, Color color) {
-
         double barW = s.getDimensionX();
-
         double currentW = (s.health / s.maxHealth) * barW;
-
         gc.setFill(Color.BLACK);
-
         gc.fillRect(s.getX(), s.getY() - 15, barW, 8);
-
         gc.setFill(color);
-
         gc.fillRect(s.getX(), s.getY() - 15, currentW, 8);
     }
 

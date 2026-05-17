@@ -6,14 +6,12 @@ public abstract class Nemico extends Sprite {
     protected double velocityX;   // spostamento orizzontale per frame
     protected double velocityY;   // spostamento verticale per frame
 
-    public Nemico(double x, double y, double dimensionX, double dimensionY,
-                  double health, double damage, double speed) {
+    public Nemico(double x, double y, double dimensionX, double dimensionY, double health, double damage, double speed) {
         super(x, y, dimensionX, dimensionY);
         this.health = health;
         this.maxHealth = health;
         this.damage = damage;
         this.speed = speed;
-
         this.velocityX = -speed;
         this.velocityY = 0;
     }

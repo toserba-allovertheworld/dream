@@ -51,7 +51,6 @@ public abstract class Sprite {
     // Quando un robo subisce danno
     public void takeDamage(double dmg) {
         health -= dmg;
-        // Se salutare, muori
         if (health <= 0) {
             alive = false;
         }

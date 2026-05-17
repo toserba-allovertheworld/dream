@@ -55,11 +55,7 @@ public class Ombra extends Nemico {
             double sx = currentFrame * frameWidth;
             double sy = currentRow * frameHeight;
 
-            gc.drawImage(
-                    SPRITE_SHEET,
-                    sx, sy, frameWidth, frameHeight,
-                    x, y, dimensionX, dimensionY
-            );
+            gc.drawImage(SPRITE_SHEET, sx, sy, frameWidth, frameHeight, x, y, dimensionX, dimensionY);
         }
     }
 
@@ -67,7 +63,6 @@ public class Ombra extends Nemico {
     public void update(double deltaTime) {
         long currentTime = System.currentTimeMillis();
 
-        // 1. Gestione Animazione Frame
         frameCounter++;
         if (frameCounter >= FRAME_DELAY) {
             if (statoAttuale == Stato.IDLE) {
@@ -78,7 +73,6 @@ public class Ombra extends Nemico {
             frameCounter = 0;
         }
 
-        // 2. Gestione del Movimento
         if (!attacking) {
             if (statoAttuale == Stato.IDLE) {
                 currentRow = 0;

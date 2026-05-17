@@ -29,26 +29,9 @@ public class Frammento extends Nemico {
     private int currentFrame = 0;
     private int currentImage = 0;
 
-    public Frammento(
-            double x,
-            double y,
-            double dimensionX,
-            double dimensionY,
-            Leo leo
-    ) {
-
-        super(
-                x,
-                y,
-                dimensionX,
-                dimensionY,
-                80.0,
-                10.0,
-                1
-        );
-
+    public Frammento(double x, double y, double dimensionX, double dimensionY, Leo leo) {
+        super(x, y, dimensionX, dimensionY, 80.0, 10.0, 1);
         this.targetLeo = leo;
-
         this.attackSpeed = 2000;
     }
 
@@ -56,33 +39,12 @@ public class Frammento extends Nemico {
     public void draw(GraphicsContext gc) {
 
         if (SPRITE_SHEET != null) {
-
-            double frameWidth =
-                    SPRITE_SHEET.getWidth() / 3.0;
-
-            double frameHeight =
-                    SPRITE_SHEET.getHeight();
-
-            double aspectRatio =
-                    frameWidth / frameHeight;
-
-            double drawWidth =
-                    dimensionX;
-
-            double drawHeight =
-                    dimensionX / aspectRatio;
-
-            gc.drawImage(
-                    SPRITE_SHEET,
-                    currentFrame * frameWidth,
-                    0,
-                    frameWidth,
-                    frameHeight,
-                    x,
-                    y,
-                    drawWidth,
-                    drawHeight
-            );
+            double frameWidth =SPRITE_SHEET.getWidth() / 3.0;
+            double frameHeight = SPRITE_SHEET.getHeight();
+            double aspectRatio = frameWidth / frameHeight;
+            double drawWidth = dimensionX;
+            double drawHeight = dimensionX / aspectRatio;
+            gc.drawImage(SPRITE_SHEET, currentFrame * frameWidth, 0, frameWidth, frameHeight, x, y, drawWidth, drawHeight);
         }
     }
 
