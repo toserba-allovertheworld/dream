@@ -3,7 +3,7 @@ package com.example.javafx1;
 import javafx.scene.canvas.GraphicsContext;
 
 public abstract class Sprite {
-    // Posizione
+    // Posizione nello schermo
     protected double x;
     protected double y;
 
@@ -15,15 +15,15 @@ public abstract class Sprite {
     protected boolean alive = true;
 
     // VITA E DANNO (per nemici E difese)
-    protected double health;        // Quanta vita ha
+    protected double health;        // Quanta vita ha attualmente
     protected double maxHealth;     // Vita massima (serve per barre di vita)
     protected double damage;        // Danno che infligge quando colpisce
 
     // ATTACCO (fire-rate: ogni quanto può attaccare)
     protected double attackSpeed;   // Intervallo in millisecondi tra gli attacchi
-    protected long lastAttackTime;  // Timestamp dell'ultimo attacco
+    protected long lastAttackTime;  // Timestamp dell'ultimo attacco effettuato
 
-    // Costruttore
+    // Costruttore pieno: inizializza posizione e dimensioni
     public Sprite(double x, double y, double dimensionX, double dimensionY) {
         this.x = x;
         this.y = y;
@@ -31,81 +31,97 @@ public abstract class Sprite {
         this.dimensionY = dimensionY;
     }
 
+    // Costruttore vuoto: permette creazione senza parametri
     public Sprite() {
 
     }
 
-    // Disegna lo spiret
+    // Disegna lo sprite sulla canvas (implementato dalle sottoclassi)
     public abstract void draw(GraphicsContext gc);
 
+    // Aggiorna logica dello sprite ogni frame (implementato dalle sottoclassi)
     public abstract void update(double deltaTime);
 
-    // Verifica se avvengono collisioni con un altro sprite
+    // Verifica se questo sprite collide con un altro sprite
     public boolean collidesWith(Sprite other) {
+        // AABB collision: (x < other.x + other.width) && (x + width > other.x) && ...
+        // Controlla se i rettangoli si sovrappongono su entrambi gli assi
         return x < other.x + other.dimensionX
                 && x + dimensionX > other.x
                 && y < other.y + other.dimensionY
                 && y + dimensionY > other.y;
     }
 
-    // Quando un robo subisce danno
+    // Applica danno a questo sprite e lo uccide se vita <= 0
     public void takeDamage(double dmg) {
-        health -= dmg;
-        if (health <= 0) {
-            alive = false;
+        health -= dmg; // Sottrae il danno dalla vita
+        if (health <= 0) { // Se la vita è azzerata o meno
+            alive = false; // Marchia come morto
         }
     }
 
-    // Controlla se puoi attaccare
+    // Controlla se questo sprite può attaccare in base al cooldown
     public boolean canAttack(long currentTime) {
+        // Se il tempo passato dall'ultimo attacco >= cooldown: può attaccare
         return (currentTime - lastAttackTime) >= attackSpeed;
     }
 
-    // Quando attacchi, aggiorna il timer
+    // Registra che è stato effettuato un attacco (aggiorna il timer)
     public void attackPerformed(long currentTime) {
-        lastAttackTime = currentTime;
+        lastAttackTime = currentTime; // Salva il momento dell'attacco
     }
 
     //--------------------------------------------------------
     //-------------------GETTER E SETTER----------------------
     //--------------------------------------------------------
+
+    // Ritorna la coordinata X dello sprite
     public double getX() {
         return x;
     }
 
+    // Ritorna la coordinata Y dello sprite
     public double getY() {
         return y;
     }
 
+    // Ritorna la larghezza dello sprite
     public double getDimensionX() {
         return dimensionX;
     }
 
+    // Ritorna l'altezza dello sprite
     public double getDimensionY() {
         return dimensionY;
     }
 
+    // Ritorna se lo sprite è vivo
     public boolean isAlive() {
         return alive;
     }
 
+    // Imposta la coordinata X dello sprite
     public void setX(double x) {
         this.x = x;
     }
 
+    // Imposta la coordinata Y dello sprite
     public void setY(double y) {
         this.y = y;
     }
 
+    // Imposta lo stato di vita dello sprite
     public void setAlive(boolean alive) {
         this.alive = alive;
     }
 
+    // Ritorna il centro X dello sprite (per calcoli di distanza)
     public double getCenterX() {
-        return x + dimensionX / 2.0;
+        return x + dimensionX / 2.0; // Punto centrale orizzontale
     }
 
+    // Ritorna il centro Y dello sprite (per calcoli di distanza)
     public double getCenterY() {
-        return y + dimensionY / 2.0;
+        return y + dimensionY / 2.0; // Punto centrale verticale
     }
 }
