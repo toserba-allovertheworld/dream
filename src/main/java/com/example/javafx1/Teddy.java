@@ -40,25 +40,25 @@ public class Teddy extends Difesa {
 
     // Costruttore: inizializza difesa Teddy con stats specifiche
     public Teddy(double x, double y) {
-        super(x, y, 110, 110, 250, 20, 25); // Width=110, Height=110, Health=250, Damage=20, Cost=25
-        this.attackSpeed = 1000; // Cooldown attacco (ogni 1 secondo)
+        super(x, y, 110, 110, 250, 20, 25);
+        this.attackSpeed = 1000;
     }
 
     // Aggiorna il frame dell'animazione corrente
     @Override
     public void update(double deltaTime) {
-        animate(); // Esegui animazione
+        animate();
     }
 
     // Cambia il frame corrente se è passato abbastanza tempo
     public void animate() {
         long currentTime = System.currentTimeMillis();
-        if (currentTime - lastFrameTime >= FRAME_DURATION) { // Se è passato il tempo di durata frame
-            currentFrame++; // Avanza al frame successivo
-            if (currentFrame >= COLS) { // Se oltre il numero di colonne (6)
-                currentFrame = 0; // Ricomincia dal primo frame (loop)
+        if (currentTime - lastFrameTime >= FRAME_DURATION) {
+            currentFrame++;
+            if (currentFrame >= COLS) {
+                currentFrame = 0;
             }
-            lastFrameTime = currentTime; // Salva il nuovo timestamp
+            lastFrameTime = currentTime;
         }
     }
 
@@ -68,8 +68,8 @@ public class Teddy extends Difesa {
 
         if (SPRITE_SHEET == null) return; // Se spritesheet non caricato, esci
 
-        double frameWidth = SPRITE_SHEET.getWidth() / COLS; // Larghezza singolo frame
-        double frameHeight = SPRITE_SHEET.getHeight() / ROWS; // Altezza singolo frame
+        double frameWidth = SPRITE_SHEET.getWidth() / COLS;
+        double frameHeight = SPRITE_SHEET.getHeight() / ROWS;
 
         // Disegna il frame della riga corrente e colonna corrente
         gc.drawImage(SPRITE_SHEET, currentFrame * frameWidth, currentRow * frameHeight, frameWidth, frameHeight, x, y, dimensionX, dimensionY);
@@ -77,15 +77,15 @@ public class Teddy extends Difesa {
 
     // Attacca un nemico se può (cooldown rispettato) e cambia animazione
     public void attack(Nemico nemico, long currentTime) {
-        if (canAttack(currentTime)) { // Se il cooldown è scaduto
-            nemico.takeDamage(this.damage); // Applica danno al nemico
-            attackPerformed(currentTime); // Aggiorna il timestamp di attacco
-            currentRow = 2; // Cambia riga a quella di attacco (riga 2)
+        if (canAttack(currentTime)) {
+            nemico.takeDamage(this.damage);
+            attackPerformed(currentTime);
+            currentRow = 2;
         }
     }
 
     // Ripristina lo Teddy allo stato di idle (riposo)
     public void idle() {
-        currentRow = 0; // Cambia riga a quella di idle (riga 0)
+        currentRow = 0;
     }
 }

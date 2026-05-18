@@ -9,7 +9,6 @@ import javafx.scene.image.Image;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
-
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -23,11 +22,9 @@ public class App extends Application {
     private List<Nemico> nemici = new ArrayList<>();
 
     private Griglia griglia;
-    private boolean teddySelected = false; // Flag per sapere se il giocatore ha cliccato sulla carta Teddy
+    private boolean teddySelected = false;
+    private int nemiciGeneratiFinora = 0;
 
-    private int nemiciGeneratiFinora = 0; // Contatore per non spawnare più di 50 nemici
-
-    // Coordinate Y di spawn per ogni tipo di nemico (5 possibili posizioni verticali)
     private final double[] spawnPointsOcchio = {115, 280, 445, 610, 775};
     private final double[] spawnPointsOmbra = {150, 320, 460, 650, 790};
     private final double[] spawnPointsClown = {175, 340, 500, 660, 790};
@@ -36,15 +33,15 @@ public class App extends Application {
     private Image immagineSfondo;
     private Image orsoIcon;
 
-    private long lastSpawnTime = 0; // Timestamp dell'ultimo nemico spawnato
-    private long spawnDelay = 7500; // Millisecondi tra uno spawn e l'altro (7.5 secondi)
+    private long lastSpawnTime = 0;
+    private long spawnDelay = 7500;
 
     private Leo bambino;
     private EssenzaBar essenzaBar;
 
     // Crea un nemico casuale e lo aggiunge alla lista
     public void spawnNemico() {
-        switch ((int) (Math.random() * 4)) { // Genera numero casuale 0-3 per tipo nemico
+        switch ((int) (Math.random() * 4)) {
             case 0:
                 nemici.add(new Occhio(1920, getSpawnY(0), 120, 120, bambino));
                 break;
@@ -62,7 +59,7 @@ public class App extends Application {
 
     // Ritorna una coordinata Y casuale per il tipo di nemico specificato
     public double getSpawnY(int nemico) {
-        int indicePunto = (int) (Math.random() * 4); // Sceglie indice casuale tra 0-3
+        int indicePunto = (int) (Math.random() * 4);
         switch (nemico) {
             case 0:
                 return spawnPointsOcchio[indicePunto];
@@ -79,10 +76,9 @@ public class App extends Application {
 
     @Override
     public void start(Stage stage) {
-
         Canvas canvas = new Canvas(WIDTH, HEIGHT);
         GraphicsContext gc = canvas.getGraphicsContext2D();
-        griglia = new Griglia(5, 9, 147, 165, 485, 150); // 5 righe, 9 colonne, cell 147x165px
+        griglia = new Griglia(5, 9, 147, 165, 485, 150);
 
         try {
             immagineSfondo = new Image(getClass().getResourceAsStream("/img/bg.png"));
@@ -92,8 +88,8 @@ public class App extends Application {
         }
 
         bambino = new Leo(150, 150, 240, 320);
-        bambino.health = 1000;
-        bambino.maxHealth = 1000;
+        bambino.health = 100;
+        bambino.maxHealth = 100;
         essenzaBar = new EssenzaBar();
 
         // Gestisce i click del mouse per posizionare difese e selezionare Teddy
@@ -102,31 +98,25 @@ public class App extends Application {
             double mouseY = e.getY();
             double boxSize = 120;
             double boxX = 20;
-            double boxY = HEIGHT - boxSize - 20; // Box in basso a sinistra
+            double boxY = HEIGHT - boxSize - 20;
 
-            // CLICK CARTA TEDDY
-            if (mouseX >= boxX &&
-                    mouseX <= boxX + boxSize &&
-                    mouseY >= boxY &&
-                    mouseY <= boxY + boxSize) {
-                if (essenzaBar.getEssenza() >= 25) { // Controlla se ha abbastanza essenza (25)
+            if (mouseX >= boxX && mouseX <= boxX + boxSize && mouseY >= boxY && mouseY <= boxY + boxSize) {
+                if (essenzaBar.getEssenza() >= 25) {
                     teddySelected = true;
                 }
                 return;
             }
 
-            // TEDDY SELEZIONATO - Posizionamento su griglia
             if (teddySelected) {
                 int row = griglia.getRow(mouseY);
                 int col = griglia.getCol(mouseX);
 
-                // Controlla: dentro griglia && cella vuota && può pagare (25 essenza)
                 if (griglia.isInsideGrid(row, col) && !griglia.isOccupied(row, col) && essenzaBar.useEssenza(25)) {
                     double x = griglia.getCellX(col) + 10;
                     double y = griglia.getCellY(row) + 20;
                     difese.add(new Teddy(x, y));
                     griglia.occupyCell(row, col);
-                    teddySelected = false; // Deseleziona dopo il piazzamento
+                    teddySelected = false;
                 }
             }
         });
@@ -149,92 +139,19 @@ public class App extends Application {
 
     // Aggiorna logica di gioco: spawn nemici, movimento, collisioni
     private void update() {
-
         long currentTime = System.currentTimeMillis();
 
-        if (nemiciGeneratiFinora < 50) { // Spawn finché non raggiunge 50 nemici totali
-
-            if (currentTime - lastSpawnTime >= spawnDelay) { // Se è passato spawnDelay ms
+        if (nemiciGeneratiFinora < 50) {
+            if (currentTime - lastSpawnTime >= spawnDelay) {
                 spawnNemico();
                 lastSpawnTime = currentTime;
                 nemiciGeneratiFinora++;
             }
         }
 
-        // Aggiorna nemici e li rimuove se morti o usciti dallo schermo
         Iterator<Nemico> iter = nemici.iterator();
-
-        for (Difesa d : difese) {
-            if (!d.isAlive()) continue;
-            Nemico bersaglio = null;
-            double distMin = Double.MAX_VALUE;
-            for (Nemico n : nemici) {
-                if (!n.isAlive()) continue;
-                double dy = Math.abs(n.getCenterY() - d.getCenterY());
-                if (dy > 80) continue;
-                double dx = n.getX() - d.getX();
-                if (dx < -d.getDimensionX()) continue;
-                if (dx < distMin) {
-                    distMin = dx;
-                    bersaglio = n;
-                }
-            }
-            if (bersaglio != null && distMin < 160) {
-                ((Teddy) d).attack(bersaglio, currentTime);
-                bersaglio.setBlockedByDifesa(true);
-            }
-        }
-
-// --- COMBATTIMENTO: Nemici bloccati attaccano la difesa ---
-        for (Nemico n : nemici) {
-            if (!n.isAlive() || !n.isBlockedByDifesa()) continue;
-            for (Difesa d : difese) {
-                if (!d.isAlive()) continue;
-                double dy = Math.abs(n.getCenterY() - d.getCenterY());
-                if (dy > 80) continue;
-                double dx = n.getX() - (d.getX() + d.getDimensionX());
-                if (dx >= -20 && dx < 100) {
-                    n.attackDifesa(d, currentTime);
-                    break;
-                }
-            }
-        }
-
-// --- PULIZIA: rimuovi difese morte e libera la cella ---
-        Iterator<Difesa> iterDifese = difese.iterator();
-        while (iterDifese.hasNext()) {
-            Difesa d = iterDifese.next();
-            if (!d.isAlive()) {
-                int row = griglia.getRow(d.getY() - 20);
-                int col = griglia.getCol(d.getX() - 10);
-                if (griglia.isInsideGrid(row, col)) {
-                    griglia.freeCell(row, col);
-                }
-                iterDifese.remove();
-            }
-        }
-
-// --- AGGIORNAMENTO NEMICI ---
         while (iter.hasNext()) {
             Nemico n = iter.next();
-
-            if (n.isBlockedByDifesa()) {
-                boolean ancoraBloccato = false;
-                for (Difesa d : difese) {
-                    if (!d.isAlive()) continue;
-                    double dy = Math.abs(n.getCenterY() - d.getCenterY());
-                    if (dy > 80) continue;
-                    double dx = n.getX() - (d.getX() + d.getDimensionX());
-                    if (dx >= -20 && dx < 100) {
-                        ancoraBloccato = true;
-                        break;
-                    }
-                }
-                if (!ancoraBloccato) {
-                    n.setBlockedByDifesa(false);
-                }
-            }
-
             n.update(1.0);
 
             if (!n.isAlive() || n.getX() < -150) {
@@ -243,7 +160,7 @@ public class App extends Application {
         }
 
         bambino.update(1.0);
-        essenzaBar.update(0.016); // ~60 FPS (1/60 ≈ 0.016)
+        essenzaBar.update(0.016);
 
         for (Difesa d : difese) {
             d.update(1.0);
@@ -268,52 +185,48 @@ public class App extends Application {
 
         for (Nemico n : nemici) {
             n.draw(gc);
-            //drawHealthBar(gc, n, Color.RED); // <-- Secondo me è brutta da vedere e mi fa impazzire vedere che i nemici non vengono spawnati perfettamente
         }
 
         for (Difesa d : difese) {
             d.draw(gc);
             drawHealthBar(gc, d, Color.CYAN);
         }
-        for (Nemico n : nemici) {
-            n.draw(gc);
-            drawHealthBar(gc, n, Color.RED);  // ← aggiunta questa riga
-        }
+
         essenzaBar.draw(gc);
 
-        // Disegna il box della carta Teddy in basso a sinistra
+        // Disegna l'interfaccia della carta d'acquisto di Teddy
         double boxSize = 120;
         double boxX = 20;
         double boxY = HEIGHT - boxSize - 20;
-        boolean sbloccato = essenzaBar.getEssenza() >= 50; // Carta è colorata solo se essenza >= 50
+        boolean sbloccato = essenzaBar.getEssenza() >= 50;
 
-        gc.setFill(sbloccato ? Color.DARKGREEN : Color.GRAY); // Ternario: verde se sbloccato, grigio se no
+        gc.setFill(sbloccato ? Color.DARKGREEN : Color.GRAY);
         gc.fillRect(boxX, boxY, boxSize, boxSize);
         gc.setStroke(Color.BLACK);
         gc.strokeRect(boxX, boxY, boxSize, boxSize);
 
         if (orsoIcon != null) {
-            double imgSize = boxSize * 0.8; // Icona al 80% della dimensione del box
-            double imgX = boxX + (boxSize - imgSize) / 2; // Centra icona orizzontalmente
-            double imgY = boxY + (boxSize - imgSize) / 2; // Centra icona verticalmente
+            double imgSize = boxSize * 0.8;
+            double imgX = boxX + (boxSize - imgSize) / 2;
+            double imgY = boxY + (boxSize - imgSize) / 2;
 
             if (!sbloccato) {
-                gc.setGlobalAlpha(0.35); // Trasparenza 35% se bloccato (non ha abbastanza essenza)
+                gc.setGlobalAlpha(0.35);
             }
 
             gc.drawImage(orsoIcon, imgX, imgY, imgSize, imgSize);
-            gc.setGlobalAlpha(1.0); // Ripristina opacità al 100%
+            gc.setGlobalAlpha(1.0);
         }
     }
 
     // Disegna barra della vita sopra uno sprite (nemico/difesa/bambino)
     private void drawHealthBar(GraphicsContext gc, Sprite s, Color color) {
-        double barW = s.getDimensionX(); // Larghezza barra = larghezza sprite
-        double currentW = (s.health / s.maxHealth) * barW; // Percentuale di vita rimanente
+        double barW = s.getDimensionX();
+        double currentW = (s.health / s.maxHealth) * barW;
         gc.setFill(Color.BLACK);
-        gc.fillRect(s.getX(), s.getY() - 15, barW, 8); // Sfondo nero
+        gc.fillRect(s.getX(), s.getY() - 15, barW, 8);
         gc.setFill(color);
-        gc.fillRect(s.getX(), s.getY() - 15, currentW, 8); // Barra colorata (riempimento)
+        gc.fillRect(s.getX(), s.getY() - 15, currentW, 8);
     }
 
     public static void main(String[] args) {
