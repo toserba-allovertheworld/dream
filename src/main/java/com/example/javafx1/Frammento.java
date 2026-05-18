@@ -67,6 +67,9 @@ public class Frammento extends Nemico {
 
         // Gestione Movimento e Attacco
         if (!attacking) {
+            if (blockedByDifesa) {
+                return;
+            }
             if (x > stopX) {
                 this.x -= 0.3;
             } else {

@@ -149,9 +149,79 @@ public class App extends Application {
             }
         }
 
+        // --- COMBATTIMENTO: Difese attaccano i nemici nella stessa corsia ---
+        for (Difesa d : difese) {
+            if (!d.isAlive()) continue;
+            Nemico bersaglio = null;
+            double distMin = Double.MAX_VALUE;
+            for (Nemico n : nemici) {
+                if (!n.isAlive()) continue;
+                double dy = Math.abs(n.getCenterY() - d.getCenterY());
+                if (dy > 80) continue;
+                double dx = n.getX() - d.getX();
+                if (dx < -d.getDimensionX()) continue;
+                if (dx < distMin) {
+                    distMin = dx;
+                    bersaglio = n;
+                }
+            }
+            if (bersaglio != null && distMin < 160) {
+                ((Teddy) d).attack(bersaglio, currentTime);
+                bersaglio.setBlockedByDifesa(true);
+            }
+        }
+
+// --- COMBATTIMENTO: Nemici bloccati attaccano la difesa ---
+        for (Nemico n : nemici) {
+            if (!n.isAlive() || !n.isBlockedByDifesa()) continue;
+            for (Difesa d : difese) {
+                if (!d.isAlive()) continue;
+                double dy = Math.abs(n.getCenterY() - d.getCenterY());
+                if (dy > 80) continue;
+                double dx = n.getX() - (d.getX() + d.getDimensionX());
+                if (dx >= -20 && dx < 100) {
+                    n.attackDifesa(d, currentTime);
+                    break;
+                }
+            }
+        }
+
+// --- PULIZIA: rimuovi difese morte e libera la cella ---
+        Iterator<Difesa> iterDifese = difese.iterator();
+        while (iterDifese.hasNext()) {
+            Difesa d = iterDifese.next();
+            if (!d.isAlive()) {
+                int row = griglia.getRow(d.getY() - 20);
+                int col = griglia.getCol(d.getX() - 10);
+                if (griglia.isInsideGrid(row, col)) {
+                    griglia.freeCell(row, col);
+                }
+                iterDifese.remove();
+            }
+        }
+
+// --- AGGIORNAMENTO NEMICI ---
         Iterator<Nemico> iter = nemici.iterator();
         while (iter.hasNext()) {
             Nemico n = iter.next();
+
+            if (n.isBlockedByDifesa()) {
+                boolean ancoraBloccato = false;
+                for (Difesa d : difese) {
+                    if (!d.isAlive()) continue;
+                    double dy = Math.abs(n.getCenterY() - d.getCenterY());
+                    if (dy > 80) continue;
+                    double dx = n.getX() - (d.getX() + d.getDimensionX());
+                    if (dx >= -20 && dx < 100) {
+                        ancoraBloccato = true;
+                        break;
+                    }
+                }
+                if (!ancoraBloccato) {
+                    n.setBlockedByDifesa(false);
+                }
+            }
+
             n.update(1.0);
 
             if (!n.isAlive() || n.getX() < -150) {
@@ -191,7 +261,10 @@ public class App extends Application {
             d.draw(gc);
             drawHealthBar(gc, d, Color.CYAN);
         }
-
+        for (Nemico n : nemici) {
+            n.draw(gc);
+            drawHealthBar(gc, n, Color.RED);
+        }
         essenzaBar.draw(gc);
 
         // Disegna l'interfaccia della carta d'acquisto di Teddy

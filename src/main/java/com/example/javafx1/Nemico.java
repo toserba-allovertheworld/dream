@@ -22,6 +22,7 @@ public abstract class Nemico extends Sprite {
     public void update(double deltaTime) {
     }
 
+
     public void attackDifesa(Difesa difesa, long currentTime) {
         if (canAttack(currentTime)) {
             difesa.takeDamage(this.damage);
