@@ -284,7 +284,7 @@ public class App extends Application {
         double boxSize = 120;
         double boxX = 20;
         double boxY = HEIGHT - boxSize - 20;
-        boolean sbloccato = essenzaBar.getEssenza() >= 50;
+        boolean sbloccato = essenzaBar.getEssenza() >= 25;
 
         gc.setFill(sbloccato ? Color.DARKGREEN : Color.GRAY);
         gc.fillRect(boxX, boxY, boxSize, boxSize);
