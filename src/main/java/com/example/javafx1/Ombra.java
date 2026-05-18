@@ -41,7 +41,7 @@ public class Ombra extends Nemico {
 
     // Costruttore: inizializza nemico Ombra con comportamento a stati
     public Ombra(double x, double y, double dimensionX, double dimensionY, Leo leo) {
-        super(x, y, dimensionX, dimensionY, 80.0, 10.0, 1.5);
+        super(x, y, dimensionX, dimensionY, 80.0, 18.0, 1.5);
         this.targetLeo = leo;
         this.attackSpeed = 2000;
         this.timerStato = System.currentTimeMillis();

@@ -2,12 +2,16 @@ package com.example.javafx1;
 
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
+import javafx.geometry.VPos;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
+import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -35,9 +39,10 @@ public class App extends Application {
 
     private long lastSpawnTime = 0;
     private long spawnDelay = 7500;
-
     private Leo bambino;
     private EssenzaBar essenzaBar;
+    private boolean gameOver = false;
+    private String risultato = "";
 
     // Crea un nemico casuale e lo aggiunge alla lista
     public void spawnNemico() {
@@ -88,8 +93,8 @@ public class App extends Application {
         }
 
         bambino = new Leo(150, 150, 240, 320);
-        bambino.health = 100;
-        bambino.maxHealth = 100;
+        bambino.health = 65;
+        bambino.maxHealth = 65;
         essenzaBar = new EssenzaBar();
 
         // Gestisce i click del mouse per posizionare difese e selezionare Teddy
@@ -139,6 +144,7 @@ public class App extends Application {
 
     // Aggiorna logica di gioco: spawn nemici, movimento, collisioni
     private void update() {
+        if (gameOver) return;
         long currentTime = System.currentTimeMillis();
 
         if (nemiciGeneratiFinora < 50) {
@@ -235,6 +241,13 @@ public class App extends Application {
         for (Difesa d : difese) {
             d.update(1.0);
         }
+        if (!bambino.isAlive()) {
+            gameOver = true;
+            risultato = "HAI PERSO";
+        } else if (nemiciGeneratiFinora >= 50 && nemici.isEmpty()) {
+            gameOver = true;
+            risultato = "HAI VINTO";
+        }
     }
 
     // Disegna tutti gli elementi sulla canvas
@@ -289,6 +302,21 @@ public class App extends Application {
 
             gc.drawImage(orsoIcon, imgX, imgY, imgSize, imgSize);
             gc.setGlobalAlpha(1.0);
+        }
+        if (gameOver) {
+            gc.setFill(Color.color(0, 0, 0, 0.65));
+            gc.fillRect(0, 0, WIDTH, HEIGHT);
+            boolean vinto = risultato.equals("HAI VINTO");
+            gc.setFill(vinto ? Color.color(0.1,0.7,0.2,0.85) : Color.color(0.7,0.1,0.1,0.85));
+            double rW=700, rH=200, rX=(WIDTH-rW)/2, rY=(HEIGHT-rH)/2;
+            gc.fillRoundRect(rX, rY, rW, rH, 30, 30);
+            gc.setStroke(Color.WHITE); gc.setLineWidth(3);
+            gc.strokeRoundRect(rX, rY, rW, rH, 30, 30);
+            gc.setFill(Color.WHITE);
+            gc.setFont(Font.font("Arial", FontWeight.BOLD, 100));
+            gc.setTextAlign(TextAlignment.CENTER);
+            gc.setTextBaseline(VPos.CENTER);
+            gc.fillText(risultato, WIDTH / 2, HEIGHT / 2);
         }
     }
 

@@ -29,7 +29,7 @@ public class Occhio extends Nemico {
 
     // Costruttore: inizializza nemico Occhio con stats specifiche
     public Occhio(double x, double y, double dimensionX, double dimensionY, Leo leo) {
-        super(x, y, dimensionX, dimensionY, 80.0, 10.0, 1);
+        super(x, y, dimensionX, dimensionY, 80.0, 18.0, 1);
         this.targetLeo = leo;
         this.attackSpeed = 2000;
     }

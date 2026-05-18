@@ -30,7 +30,7 @@ public class Frammento extends Nemico {
 
     // Costruttore: inizializza nemico Frammento con stats specifiche
     public Frammento(double x, double y, double dimensionX, double dimensionY, Leo leo) {
-        super(x, y, dimensionX, dimensionY, 80.0, 10.0, 1);
+        super(x, y, dimensionX, dimensionY, 80.0, 18.0, 1);
         this.targetLeo = leo;
         this.attackSpeed = 2000;
     }
