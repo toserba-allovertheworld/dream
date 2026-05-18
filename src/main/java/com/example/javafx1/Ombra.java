@@ -75,6 +75,10 @@ public class Ombra extends Nemico {
         }
 
         if (!attacking) {
+            if (blockedByDifesa) {
+                statoAttuale = Stato.IDLE;
+                return;
+            }
             if (statoAttuale == Stato.IDLE) {
                 currentRow = 0; // Riga 0 = animazione idle
 

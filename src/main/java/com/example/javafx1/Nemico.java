@@ -17,9 +17,25 @@ public abstract class Nemico extends Sprite {
         this.velocityY = 0;
     }
 
-    // Aggiorna posizione e stato del nemico (implementato dalle sottoclassi)
+
     @Override
     public void update(double deltaTime) {
-        // Da implementare nelle sottoclassi (Occhio, Ombra, Clown, Frammento)
     }
+
+    public void attackDifesa(Difesa difesa, long currentTime) {
+        if (canAttack(currentTime)) {
+            difesa.takeDamage(this.damage);
+            attackPerformed(currentTime);
+        }
+    }
+
+    public boolean isBlockedByDifesa() {
+        return blockedByDifesa;
+    }
+
+    public void setBlockedByDifesa(boolean blocked) {
+        this.blockedByDifesa = blocked;
+    }
+
+    protected boolean blockedByDifesa = false;
 }

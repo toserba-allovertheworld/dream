@@ -58,6 +58,9 @@ public class Occhio extends Nemico {
         long currentTime = System.currentTimeMillis();
 
         if (!attacking) {
+            if (blockedByDifesa) {
+                return;
+            }
             if (x > stopX) {
                 this.x -= 1; // Movimento costante verso sinistra
                 this.y += Math.sin(currentTime * 0.005) * 0.1; // Oscillazione sinusoidale verticale (movimento ondulato)

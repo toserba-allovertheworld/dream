@@ -71,7 +71,9 @@ public class Frammento extends Nemico {
         }
 
         if (!attacking) {
-
+            if (blockedByDifesa) {
+                return;
+            }
             if (x > stopX) {
                 this.x -= 0.3; // Movimento lento verso sinistra (più lento di Clown)
             } else {

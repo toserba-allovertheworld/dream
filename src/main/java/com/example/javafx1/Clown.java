@@ -74,6 +74,9 @@ public class Clown extends Nemico {
         }
 
         if (!attacking) {
+            if (blockedByDifesa) {
+                return;
+            }
             if (x > stopX) {
                 this.x -= 0.5; // Movimento costante verso sinistra (velocità media)
             } else {
