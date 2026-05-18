@@ -8,20 +8,20 @@ public abstract class Sprite {
     protected double y;
 
     // Dimensioni delle immagini
-    protected double dimensionX; // larghezza
-    protected double dimensionY; // altezza
+    protected double dimensionX;
+    protected double dimensionY;
 
     // Indicatore per verificare se è morto o vivo
     protected boolean alive = true;
 
     // VITA E DANNO (per nemici E difese)
-    protected double health;        // Quanta vita ha attualmente
-    protected double maxHealth;     // Vita massima (serve per barre di vita)
-    protected double damage;        // Danno che infligge quando colpisce
+    protected double health;
+    protected double maxHealth;
+    protected double damage;
 
     // ATTACCO (fire-rate: ogni quanto può attaccare)
-    protected double attackSpeed;   // Intervallo in millisecondi tra gli attacchi
-    protected long lastAttackTime;  // Timestamp dell'ultimo attacco effettuato
+    protected double attackSpeed;
+    protected long lastAttackTime;
 
     // Costruttore pieno: inizializza posizione e dimensioni
     public Sprite(double x, double y, double dimensionX, double dimensionY) {
@@ -44,8 +44,6 @@ public abstract class Sprite {
 
     // Verifica se questo sprite collide con un altro sprite
     public boolean collidesWith(Sprite other) {
-        // AABB collision: (x < other.x + other.width) && (x + width > other.x) && ...
-        // Controlla se i rettangoli si sovrappongono su entrambi gli assi
         return x < other.x + other.dimensionX
                 && x + dimensionX > other.x
                 && y < other.y + other.dimensionY
@@ -54,26 +52,21 @@ public abstract class Sprite {
 
     // Applica danno a questo sprite e lo uccide se vita <= 0
     public void takeDamage(double dmg) {
-        health -= dmg; // Sottrae il danno dalla vita
-        if (health <= 0) { // Se la vita è azzerata o meno
-            alive = false; // Marchia come morto
+        health -= dmg;
+        if (health <= 0) {
+            alive = false;
         }
     }
 
     // Controlla se questo sprite può attaccare in base al cooldown
     public boolean canAttack(long currentTime) {
-        // Se il tempo passato dall'ultimo attacco >= cooldown: può attaccare
         return (currentTime - lastAttackTime) >= attackSpeed;
     }
 
     // Registra che è stato effettuato un attacco (aggiorna il timer)
     public void attackPerformed(long currentTime) {
-        lastAttackTime = currentTime; // Salva il momento dell'attacco
+        lastAttackTime = currentTime;
     }
-
-    //--------------------------------------------------------
-    //-------------------GETTER E SETTER----------------------
-    //--------------------------------------------------------
 
     // Ritorna la coordinata X dello sprite
     public double getX() {
@@ -117,11 +110,11 @@ public abstract class Sprite {
 
     // Ritorna il centro X dello sprite (per calcoli di distanza)
     public double getCenterX() {
-        return x + dimensionX / 2.0; // Punto centrale orizzontale
+        return x + dimensionX / 2.0;
     }
 
     // Ritorna il centro Y dello sprite (per calcoli di distanza)
     public double getCenterY() {
-        return y + dimensionY / 2.0; // Punto centrale verticale
+        return y + dimensionY / 2.0;
     }
 }
